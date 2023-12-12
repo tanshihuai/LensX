@@ -1,68 +1,66 @@
 package com.example.terraforming
 
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextWatcher
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import com.aallam.openai.api.chat.ChatCompletion
 import com.aallam.openai.api.chat.ChatCompletionRequest
 import com.aallam.openai.api.chat.ChatMessage
 import com.aallam.openai.api.chat.ChatRole
 import com.aallam.openai.api.http.Timeout
+import com.aallam.openai.api.image.ImageCreation
+import com.aallam.openai.api.image.ImageSize
+import com.aallam.openai.api.image.ImageURL
 import com.aallam.openai.api.model.ModelId
 import com.aallam.openai.client.OpenAI
+import com.squareup.picasso.Picasso
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.*
 
 
 class MainActivity : AppCompatActivity() {
     private lateinit var etQuestion: EditText
-    private lateinit var tvReply: TextView
     private lateinit var btnAsk: Button
+    private lateinit var ivPicture: ImageView
 
+
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         etQuestion = findViewById(R.id.etQuestion)
-        tvReply = findViewById(R.id.tvReply)
         btnAsk = findViewById(R.id.btnAsk)
+        ivPicture = findViewById(R.id.ivPicture)
 
-        val openai = OpenAI(
+        val openAI = OpenAI(
             token = "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"
         )
 
         btnAsk.setOnClickListener {
             val question = etQuestion.text.toString()
-            Toast.makeText(this, question, Toast.LENGTH_SHORT).show()
 
             // CoroutineScope tied to the lifecycle of the activity with Main dispatcher for UI updates
             CoroutineScope(Dispatchers.Main).launch {
                 // Use withContext to switch to IO dispatcher for network call
-                val completion: ChatCompletion = withContext(Dispatchers.IO) {
-                    val chatCompletionRequest = ChatCompletionRequest(
-                        model = ModelId("gpt-3.5-turbo"),
-                        messages = listOf(
-                            ChatMessage(
-                                role = ChatRole.System,
-                                content = "You are a helpful assistant!"
-                            ),
-                            ChatMessage(
-                                role = ChatRole.User,
-                                content = question
-                            )
-                        )
+                val images = openAI.imageURL( // or openAI.imageJSON
+                    creation = ImageCreation(
+                        prompt = question,
+                        model = ModelId("dall-e-2"),
+                        n = 1,
+                        size = ImageSize.is1024x1024
                     )
-                    // Make the network call to the API
-                    openai.chatCompletion(chatCompletionRequest)
-                }
-
-                // Update the UI with the API response
-                tvReply.text = completion.choices?.joinToString { it.message.content ?: "" }
-
+                )
+                Log.i("Mine", images[0].url)
+                var url = images[0].url
+                Picasso.get().load(url).into(ivPicture)
             }
         }
     }

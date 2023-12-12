@@ -6,37 +6,37 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/tvReply"
-        android:layout_width="37dp"
-        android:layout_height="23dp"
-        android:layout_marginTop="32dp"
-        android:text="reply"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnAsk" />
-
     <EditText
         android:id="@+id/etQuestion"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
         android:ems="10"
         android:inputType="text"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Question" />
+        tools:text="Prompt" />
 
     <Button
         android:id="@+id/btnAsk"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="Ask"
+        android:text="Terraform!"
         app:layout_constraintEnd_toEndOf="@+id/etQuestion"
         app:layout_constraintStart_toStartOf="@+id/etQuestion"
         app:layout_constraintTop_toBottomOf="@+id/etQuestion" />
+
+    <ImageView
+        android:id="@+id/ivPicture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        app:layout_constraintEnd_toEndOf="@+id/btnAsk"
+        app:layout_constraintStart_toStartOf="@+id/btnAsk"
+        app:layout_constraintTop_toBottomOf="@+id/btnAsk"
+        android:src="@drawable/pika"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
