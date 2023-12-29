@@ -48,8 +48,9 @@ dependencies {
     implementation("com.squareup.picasso:picasso:2.8")
 
 
-    // define dependencies without versions
     implementation("com.aallam.openai:openai-client")
     runtimeOnly("io.ktor:ktor-client-okhttp")
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    implementation("com.google.android.libraries.places:places:3.2.0")
 
 }
