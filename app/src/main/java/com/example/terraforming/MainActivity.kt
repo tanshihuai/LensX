@@ -81,10 +81,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun getLongLat(getWeather: (lat: Double, long: Double)-> Unit){
+    private fun getLongLat(getWeather: (lat: Double, long: Double) -> Unit) {
         Log.i(TAG, "getLongLat() called.")
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
-            PackageManager.PERMISSION_GRANTED) {
+            PackageManager.PERMISSION_GRANTED
+        ) {
             fusedLocationProviderClient.lastLocation
                 .addOnSuccessListener { location: Location? ->
                     // Got last known location. In some rare situations, this can be null.
@@ -96,15 +97,14 @@ class MainActivity : AppCompatActivity() {
                         getWeather(latitude, longitude)
                     }
                 }
-        }
-        else{
+        } else {
             Log.i(TAG, "Error at getLongLat(), no location permission.")
             getLocationPermission()
         }
     }
 
-    private fun getLocation(generate: ()-> Unit){
-        Log.i(TAG,"getLocation() called.")
+    private fun getLocation(generate: () -> Unit) {
+        Log.i(TAG, "getLocation() called.")
 
 
         // Use fields to define the data types to return.
@@ -115,26 +115,30 @@ class MainActivity : AppCompatActivity() {
 
         // Call findCurrentPlace and handle the response (first check that the user has granted permission).
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
-            PackageManager.PERMISSION_GRANTED) {
+            PackageManager.PERMISSION_GRANTED
+        ) {
 
             val placeResponse = placesClient.findCurrentPlace(request)
             placeResponse.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val response = task.result
                     val firstPlaceLikelihood = response.placeLikelihoods.firstOrNull()
-                    if (firstPlaceLikelihood != null){
+                    if (firstPlaceLikelihood != null) {
                         name = firstPlaceLikelihood.place.name
                         Log.i(TAG, "Location name is $name")
                         getLocationFlag = true
-                        if (getLocationFlag && getWeatherFlag){
+                        if (getLocationFlag && getWeatherFlag) {
                             Log.i(TAG, "Calling generate() from getLocation()...")
                             generate()
                         }
-                    }
-                    else{
+                    } else {
                         // location is null error
                         Log.i(TAG, "firstPlaceLikelihood is null")
-                        val toast = Toast.makeText(this, "We cannot determine your current location. Please try again in a different location.", Toast.LENGTH_LONG)
+                        val toast = Toast.makeText(
+                            this,
+                            "We cannot determine your current location. Please try again in a different location.",
+                            Toast.LENGTH_LONG
+                        )
                         toast.show()
                     }
                 } else {
@@ -143,7 +147,11 @@ class MainActivity : AppCompatActivity() {
                     if (exception is ApiException) {
                         Log.i(TAG, "Place not found: ${exception.statusCode}")
                     }
-                    val toast = Toast.makeText(this, "We cannot determine your current location. Please try again later.", Toast.LENGTH_LONG)
+                    val toast = Toast.makeText(
+                        this,
+                        "We cannot determine your current location. Please try again later.",
+                        Toast.LENGTH_LONG
+                    )
                     toast.show()
                 }
             }
@@ -152,11 +160,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun getWeather(lat: Double, long: Double){
+    private fun getWeather(lat: Double, long: Double) {
         Log.i(TAG, "getWeather() called.")
-        CoroutineScope(Dispatchers.IO).launch{
-            try{
-                val url = "https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${long}&units=metric&exclude=minutely,hourly,daily,alerts&appid=$openWeatherAPIKey"
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val url =
+                    "https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${long}&units=metric&exclude=minutely,hourly,daily,alerts&appid=$openWeatherAPIKey"
                 val resultJson = URL(url).readText()
                 val jsonObject = JSONObject(resultJson)
                 val jsonCurrent = jsonObject.getJSONObject("current")
@@ -167,16 +176,15 @@ class MainActivity : AppCompatActivity() {
                 withContext(Dispatchers.Main) {
                     Log.i(TAG, "Weather is: $weather")
                     getWeatherFlag = true
-                    if (getLocationFlag && getWeatherFlag){
+                    if (getLocationFlag && getWeatherFlag) {
                         Log.i(TAG, "Calling generate() from getWeather()...")
                         generate()
                     }
                 }
-            }
-            catch(e: Exception){
+            } catch (e: Exception) {
                 Log.i(TAG, "exception caught, ${e.localizedMessage}")
                 getWeatherFlag = true
-                if (getLocationFlag && getWeatherFlag){
+                if (getLocationFlag && getWeatherFlag) {
                     Log.i(TAG, "Calling generate() from getWeather() with no weather...")
                     generate()
                 }
@@ -184,7 +192,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun generate(){
+    private fun generate() {
         Log.i(TAG, "generate() called.")
 
         val question = "dalle3: $name at $time, weather is broken clouds"
@@ -212,25 +220,30 @@ class MainActivity : AppCompatActivity() {
          * device. The result of the permission request is handled by a callback,
          * onRequestPermissionsResult.
          */
-        if (ContextCompat.checkSelfPermission(this.applicationContext,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-            == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                this.applicationContext,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+            == PackageManager.PERMISSION_GRANTED
+        ) {
             locationPermissionGranted = true
         } else {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION)
+            ActivityCompat.requestPermissions(
+                this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION
+            )
         }
     }
 
-    private fun getTime(){
-        Log.i(TAG,"Getting time...")
+    private fun getTime() {
+        Log.i(TAG, "Getting time...")
         val currentTime = Date()
         val formatter = SimpleDateFormat("h a", Locale.getDefault())
         time = formatter.format(currentTime)
-        Log.i(TAG,"Current time is $time")
+        Log.i(TAG, "Current time is $time")
     }
 
-    private fun resetVariables(){
+    private fun resetVariables() {
         name = ""
         time = ""
         weather = "clear skies"
