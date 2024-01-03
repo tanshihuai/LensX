@@ -10,21 +10,20 @@
         android:id="@+id/btnAsk"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
+        android:layout_marginBottom="64dp"
         android:text="Terraform!"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
         android:id="@+id/ivPicture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        app:layout_constraintEnd_toEndOf="@+id/btnAsk"
-        app:layout_constraintStart_toStartOf="@+id/btnAsk"
-        app:layout_constraintTop_toBottomOf="@+id/btnAsk"
+        android:layout_marginBottom="64dp"
         android:src="@drawable/pika"
-        />
+        app:layout_constraintBottom_toTopOf="@+id/btnAsk"
+        app:layout_constraintEnd_toEndOf="@+id/btnAsk"
+        app:layout_constraintStart_toStartOf="@+id/btnAsk" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

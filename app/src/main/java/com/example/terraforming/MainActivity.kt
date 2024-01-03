@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -25,6 +26,9 @@ import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.*
+import org.json.JSONObject
+import java.lang.Exception
+import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -33,18 +37,24 @@ import java.util.Locale
 class MainActivity : AppCompatActivity() {
     private lateinit var btnAsk: Button
     private lateinit var ivPicture: ImageView
-
     private lateinit var placesClient: PlacesClient
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-    private val TAG = "My debug"
 
+    private val TAG = "My debug"
     private var locationPermissionGranted = false
     private val PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1
-    private var name = ""
-    private var time = ""
-    val openAI = OpenAI(
+
+    private val openWeatherAPIKey = "6f24d2191ecfc9eb76a31cc11c8c1355"
+    private val openAI = OpenAI(
         token = "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"
     )
+
+    private var name = ""
+    private var time = ""
+    private var weather = "clear skies"
+    private var getLocationFlag = false
+    private var getWeatherFlag = false
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,16 +63,146 @@ class MainActivity : AppCompatActivity() {
         btnAsk = findViewById(R.id.btnAsk)
         ivPicture = findViewById(R.id.ivPicture)
 
+        Places.initialize(applicationContext, "AIzaSyCciR3XilwS3krTEQDeqVYYiLE8zzc8x90")
+        placesClient = Places.createClient(this)
 
+        // Construct a FusedLocationProviderClient.
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
         btnAsk.setOnClickListener {
 
+            resetVariables()
             Log.i(TAG, "Terraforming. Please wait.")
+            getTime()
+            Log.i(TAG, "Calling getLongLat()...")
+            getLongLat(::getWeather)
+            Log.i(TAG, "calling getLocation()...")
+            getLocation(::generate)
+        }
+    }
 
-            getLocation(::onSuccess)
+    private fun getLongLat(getWeather: (lat: Double, long: Double)-> Unit){
+        Log.i(TAG, "getLongLat() called.")
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
+            PackageManager.PERMISSION_GRANTED) {
+            fusedLocationProviderClient.lastLocation
+                .addOnSuccessListener { location: Location? ->
+                    // Got last known location. In some rare situations, this can be null.
+                    if (location != null) {
+                        val latitude = location.latitude
+                        val longitude = location.longitude
+                        Log.i(TAG, "Lat = $latitude, Long= $longitude")
+                        Log.i(TAG, "Calling getWeather()...")
+                        getWeather(latitude, longitude)
+                    }
+                }
+        }
+        else{
+            Log.i(TAG, "Error at getLongLat(), no location permission.")
+            getLocationPermission()
+        }
+    }
 
-            // CoroutineScope tied to the lifecycle of the activity with Main dispatcher for UI updates
+    private fun getLocation(generate: ()-> Unit){
+        Log.i(TAG,"getLocation() called.")
 
+
+        // Use fields to define the data types to return.
+        val placeFields: List<Place.Field> = listOf(Place.Field.NAME)
+
+        // Use the builder to create a FindCurrentPlaceRequest.
+        val request: FindCurrentPlaceRequest = FindCurrentPlaceRequest.newInstance(placeFields)
+
+        // Call findCurrentPlace and handle the response (first check that the user has granted permission).
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
+            PackageManager.PERMISSION_GRANTED) {
+
+            val placeResponse = placesClient.findCurrentPlace(request)
+            placeResponse.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val response = task.result
+                    val firstPlaceLikelihood = response.placeLikelihoods.firstOrNull()
+                    if (firstPlaceLikelihood != null){
+                        name = firstPlaceLikelihood.place.name
+                        Log.i(TAG, "Location name is $name")
+                        getLocationFlag = true
+                        if (getLocationFlag && getWeatherFlag){
+                            Log.i(TAG, "Calling generate() from getLocation()...")
+                            generate()
+                        }
+                    }
+                    else{
+                        // location is null error
+                        Log.i(TAG, "firstPlaceLikelihood is null")
+                        val toast = Toast.makeText(this, "We cannot determine your current location. Please try again in a different location.", Toast.LENGTH_LONG)
+                        toast.show()
+                    }
+                } else {
+                    // call failed error
+                    val exception = task.exception
+                    if (exception is ApiException) {
+                        Log.i(TAG, "Place not found: ${exception.statusCode}")
+                    }
+                    val toast = Toast.makeText(this, "We cannot determine your current location. Please try again later.", Toast.LENGTH_LONG)
+                    toast.show()
+                }
+            }
+        } else {
+            getLocationPermission()
+        }
+    }
+
+    private fun getWeather(lat: Double, long: Double){
+        Log.i(TAG, "getWeather() called.")
+        CoroutineScope(Dispatchers.IO).launch{
+            try{
+                val url = "https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${long}&units=metric&exclude=minutely,hourly,daily,alerts&appid=$openWeatherAPIKey"
+                val resultJson = URL(url).readText()
+                val jsonObject = JSONObject(resultJson)
+                val jsonCurrent = jsonObject.getJSONObject("current")
+                val jsonWeather = jsonCurrent.getJSONArray("weather")
+                val jsonWeather0 = jsonWeather.getJSONObject(0)
+                weather = jsonWeather0.getString("description")
+
+                withContext(Dispatchers.Main) {
+                    Log.i(TAG, "Weather is: $weather")
+                    getWeatherFlag = true
+                    if (getLocationFlag && getWeatherFlag){
+                        Log.i(TAG, "Calling generate() from getWeather()...")
+                        generate()
+                    }
+                }
+            }
+            catch(e: Exception){
+                Log.i(TAG, "exception caught, ${e.localizedMessage}")
+                getWeatherFlag = true
+                if (getLocationFlag && getWeatherFlag){
+                    Log.i(TAG, "Calling generate() from getWeather() with no weather...")
+                    generate()
+                }
+            }
+        }
+    }
+
+    private fun generate(){
+        Log.i(TAG, "generate() called.")
+
+        val question = "dalle3: $name at $time, weather is broken clouds"
+        Log.i(TAG, "Terraforming prompt: $question")
+        CoroutineScope(Dispatchers.IO).launch {
+            val images = openAI.imageURL( // or openAI.imageJSON
+                creation = ImageCreation(
+                    prompt = question,
+                    model = ModelId("dall-e-2"),
+                    n = 1,
+                    size = ImageSize.is1024x1024
+                )
+            )
+            withContext(Dispatchers.Main) {
+                Log.i("Mine", images[0].url)
+                val url = images[0].url
+                Picasso.get().load(url).into(ivPicture)
+            }
         }
     }
 
@@ -82,78 +222,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun getLocation(function1: (String) -> Unit){
-        Log.i(TAG,"Getting location...")
-        Places.initialize(applicationContext, "AIzaSyCciR3XilwS3krTEQDeqVYYiLE8zzc8x90")
-        placesClient = Places.createClient(this)
-
-        // Construct a FusedLocationProviderClient.
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-
-
-        // Use fields to define the data types to return.
-        val placeFields: List<Place.Field> = listOf(Place.Field.NAME)
-
-        // Use the builder to create a FindCurrentPlaceRequest.
-        val request: FindCurrentPlaceRequest = FindCurrentPlaceRequest.newInstance(placeFields)
-
-        // Call findCurrentPlace and handle the response (first check that the user has granted permission).
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
-            PackageManager.PERMISSION_GRANTED) {
-
-            val placeResponse = placesClient.findCurrentPlace(request)
-            placeResponse.addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val response = task.result
-                    val firstPlaceLikelihood = response.placeLikelihoods.firstOrNull()
-                    if (firstPlaceLikelihood != null){
-                        Log.i(TAG, "firstPlaceLikelihood is not null")
-                        name = firstPlaceLikelihood.place.name
-                        Log.i(TAG, "Location name is ${name}")
-                        function1(name)
-                    }
-                    else{
-                        Log.i(TAG, "firstPlaceLikelihood is null")
-                    }
-
-                } else {
-                    val exception = task.exception
-                    if (exception is ApiException) {
-                        Log.e(TAG, "Place not found: ${exception.statusCode}")
-                    }
-                }
-            }
-        } else {
-            // A local method to request required permissions;
-            getLocationPermission()
-        }
-    }
-
-    private fun onSuccess(placeName: String){
-        getTime()
-        val question = "dalle3: ${name} at $time, rainy weather"
-        Log.i(TAG, "Terraforming prompt: ${question}")
-        CoroutineScope(Dispatchers.Main).launch {
-            // Use withContext to switch to IO dispatcher for network call
-            val images = openAI.imageURL( // or openAI.imageJSON
-                creation = ImageCreation(
-                    prompt = question,
-                    model = ModelId("dall-e-2"),
-                    n = 1,
-                    size = ImageSize.is1024x1024
-                )
-            )
-            Log.i("Mine", images[0].url)
-            var url = images[0].url
-            Picasso.get().load(url).into(ivPicture)
-        }
-    }
-
     private fun getTime(){
         Log.i(TAG,"Getting time...")
         val currentTime = Date()
         val formatter = SimpleDateFormat("h a", Locale.getDefault())
         time = formatter.format(currentTime)
-        Log.i(TAG,"Current time is " + time)
+        Log.i(TAG,"Current time is $time")
+    }
+
+    private fun resetVariables(){
+        name = ""
+        time = ""
+        weather = "clear skies"
+        getLocationFlag = false
+        getWeatherFlag = false
     }
 }
