@@ -6,24 +6,163 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/btnAsk"
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/loading_animation_xml"
+        android:layout_width="290dp"
+        android:layout_height="290dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/btnShutter"
+        app:layout_constraintBottom_toBottomOf="@+id/btnShutter"
+        app:lottie_autoPlay="false"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/loading_animation" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnShutter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="64dp"
-        android:text="Terraform!"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/shutter_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView" />
+
+    <HorizontalScrollView
+        android:id="@+id/horizontalScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:scrollbars="none"
+        app:layout_constraintTop_toBottomOf="@+id/ivPicture">
+
+
+        <!--Horizontal Chunk-->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <!--Card 1-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardYarn"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_margin="20dp"
+                    android:checkable="true"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="10dp"
+                    app:checkedIconSize="0dp"
+                    app:strokeColor="@color/card_border_selector"
+                    app:strokeWidth="10dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/yarn1">
+                    </ImageView>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Yearning for Yarn">
+                </TextView>
+
+            </LinearLayout>
+
+
+            <!--Card 2-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardStarry"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_margin="20dp"
+                    android:checkable="true"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="10dp"
+                    app:checkedIconSize="0dp"
+                    app:strokeColor="@color/card_border_selector"
+                    app:strokeWidth="10dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/van_gogh">
+                    </ImageView>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="A very Starry Night">
+                </TextView>
+
+            </LinearLayout>
+
+            <!--Card 3-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardDiorama"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_margin="20dp"
+                    android:checkable="true"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="10dp"
+                    app:checkedIconSize="0dp"
+                    app:strokeColor="@color/card_border_selector"
+                    app:strokeWidth="10dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/diorama">
+                    </ImageView>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Diorama Daydream">
+                </TextView>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </HorizontalScrollView>
 
     <ImageView
         android:id="@+id/ivPicture"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="64dp"
-        android:src="@drawable/pika"
-        app:layout_constraintBottom_toTopOf="@+id/btnAsk"
-        app:layout_constraintEnd_toEndOf="@+id/btnAsk"
-        app:layout_constraintStart_toStartOf="@+id/btnAsk" />
+        android:layout_width="370dp"
+        android:layout_height="370dp"
+        android:layout_marginTop="22dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/scream_pika"></ImageView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

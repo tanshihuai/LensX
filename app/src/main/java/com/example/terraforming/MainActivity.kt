@@ -11,6 +11,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatButton
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.aallam.openai.api.image.ImageCreation
@@ -24,6 +25,7 @@ import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
 import com.google.android.libraries.places.api.net.PlacesClient
+import com.google.android.material.card.MaterialCardView
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.*
 import org.json.JSONObject
@@ -35,10 +37,14 @@ import java.util.Locale
 
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var btnAsk: Button
+    private lateinit var btnShutter: AppCompatButton
     private lateinit var ivPicture: ImageView
     private lateinit var placesClient: PlacesClient
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    private lateinit var cardYarn: MaterialCardView
+    private lateinit var cardStarry: MaterialCardView
+    private lateinit var cardDiorama: MaterialCardView
+
 
     private val TAG = "My debug"
     private var locationPermissionGranted = false
@@ -54,14 +60,17 @@ class MainActivity : AppCompatActivity() {
     private var weather = "clear skies"
     private var getLocationFlag = false
     private var getWeatherFlag = false
-
+    private var selectedStyle: MaterialCardView? = null
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        btnAsk = findViewById(R.id.btnAsk)
+        btnShutter = findViewById(R.id.btnShutter)
         ivPicture = findViewById(R.id.ivPicture)
+        cardYarn = findViewById(R.id.cardYarn)
+        cardStarry = findViewById(R.id.cardStarry)
+        cardDiorama = findViewById(R.id.cardDiorama)
 
         Places.initialize(applicationContext, "AIzaSyCciR3XilwS3krTEQDeqVYYiLE8zzc8x90")
         placesClient = Places.createClient(this)
@@ -69,15 +78,53 @@ class MainActivity : AppCompatActivity() {
         // Construct a FusedLocationProviderClient.
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
-        btnAsk.setOnClickListener {
 
+        btnShutter.setOnClickListener {
             resetVariables()
+            // TODO: make shutter button disappear, make loading button appear
+            // TODO: at generate(), make loading button disappear, make shutter button appear
             Log.i(TAG, "Terraforming. Please wait.")
             getTime()
             Log.i(TAG, "Calling getLongLat()...")
             getLongLat(::getWeather)
             Log.i(TAG, "calling getLocation()...")
             getLocation(::generate)
+        }
+
+        cardYarn.setOnClickListener{
+            if (selectedStyle == cardYarn){
+                cardYarn.setChecked(false)
+                selectedStyle = null
+            }
+            else{
+                selectedStyle?.setChecked(false)
+                selectedStyle = cardYarn
+                cardYarn.setChecked(true)
+            }
+        }
+
+        cardStarry.setOnClickListener{
+            if (selectedStyle == cardStarry){
+                cardStarry.setChecked(false)
+                selectedStyle = null
+            }
+            else{
+                selectedStyle?.setChecked(false)
+                selectedStyle = cardStarry
+                cardStarry.setChecked(true)
+            }
+        }
+
+        cardDiorama.setOnClickListener{
+            if (selectedStyle == cardDiorama){
+                cardDiorama.setChecked(false)
+                selectedStyle = null
+            }
+            else{
+                selectedStyle?.setChecked(false)
+                selectedStyle = cardDiorama
+                cardDiorama.setChecked(true)
+            }
         }
     }
 
