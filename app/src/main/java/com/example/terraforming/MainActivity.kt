@@ -1,13 +1,15 @@
 package com.example.terraforming
 
+
 import android.Manifest
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
+import android.view.View
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -18,6 +20,7 @@ import com.aallam.openai.api.image.ImageCreation
 import com.aallam.openai.api.image.ImageSize
 import com.aallam.openai.api.model.ModelId
 import com.aallam.openai.client.OpenAI
+import com.airbnb.lottie.LottieAnimationView
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -34,6 +37,7 @@ import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.Queue
 
 
 class MainActivity : AppCompatActivity() {
@@ -44,6 +48,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var cardYarn: MaterialCardView
     private lateinit var cardStarry: MaterialCardView
     private lateinit var cardDiorama: MaterialCardView
+    private lateinit var cardWatercolour: MaterialCardView
+    private lateinit var cardTapestry: MaterialCardView
+    private lateinit var cardCartoon: MaterialCardView
+    private lateinit var cardClay: MaterialCardView
+    private lateinit var cardArtbook: MaterialCardView
+    private lateinit var tvPrompt: TextView
+    private lateinit var anim: LottieAnimationView
 
 
     private val TAG = "My debug"
@@ -58,6 +69,7 @@ class MainActivity : AppCompatActivity() {
     private var name = ""
     private var time = ""
     private var weather = "clear skies"
+    private var typeOfPlace = ""
     private var getLocationFlag = false
     private var getWeatherFlag = false
     private var selectedStyle: MaterialCardView? = null
@@ -71,8 +83,15 @@ class MainActivity : AppCompatActivity() {
         cardYarn = findViewById(R.id.cardYarn)
         cardStarry = findViewById(R.id.cardStarry)
         cardDiorama = findViewById(R.id.cardDiorama)
+        cardWatercolour = findViewById(R.id.cardWatercolour)
+        cardTapestry = findViewById(R.id.cardTapestry)
+        cardCartoon = findViewById(R.id.cardCartoon)
+        cardClay = findViewById(R.id.cardClay)
+        cardArtbook = findViewById(R.id.cardArtbook)
+        tvPrompt = findViewById(R.id.tvPrompt)
+        anim = findViewById(R.id.anim)
 
-        Places.initialize(applicationContext, "AIzaSyCciR3XilwS3krTEQDeqVYYiLE8zzc8x90")
+        Places.initializeWithNewPlacesApiEnabled (applicationContext, "AIzaSyCciR3XilwS3krTEQDeqVYYiLE8zzc8x90")
         placesClient = Places.createClient(this)
 
         // Construct a FusedLocationProviderClient.
@@ -81,7 +100,9 @@ class MainActivity : AppCompatActivity() {
 
         btnShutter.setOnClickListener {
             resetVariables()
-            // TODO: make shutter button disappear, make loading button appear
+            btnShutter.setVisibility(View.INVISIBLE)
+            anim.setVisibility(View.VISIBLE)
+            anim.playAnimation()
             // TODO: at generate(), make loading button disappear, make shutter button appear
             Log.i(TAG, "Terraforming. Please wait.")
             getTime()
@@ -92,44 +113,44 @@ class MainActivity : AppCompatActivity() {
         }
 
         cardYarn.setOnClickListener{
-            if (selectedStyle == cardYarn){
-                cardYarn.setChecked(false)
-                selectedStyle = null
-            }
-            else{
-                selectedStyle?.setChecked(false)
-                selectedStyle = cardYarn
-                cardYarn.setChecked(true)
-            }
+            selectStyle(cardYarn)
         }
 
         cardStarry.setOnClickListener{
-            if (selectedStyle == cardStarry){
-                cardStarry.setChecked(false)
-                selectedStyle = null
-            }
-            else{
-                selectedStyle?.setChecked(false)
-                selectedStyle = cardStarry
-                cardStarry.setChecked(true)
-            }
+            selectStyle(cardStarry)
         }
 
         cardDiorama.setOnClickListener{
-            if (selectedStyle == cardDiorama){
-                cardDiorama.setChecked(false)
-                selectedStyle = null
-            }
-            else{
-                selectedStyle?.setChecked(false)
-                selectedStyle = cardDiorama
-                cardDiorama.setChecked(true)
-            }
+            selectStyle(cardDiorama)
         }
+
+        cardWatercolour.setOnClickListener{
+            selectStyle(cardWatercolour)
+        }
+
+        // TODO generate a tapestry with gpt that includes prompt: smth about textured woven weave
+        cardTapestry.setOnClickListener{
+            selectStyle(cardTapestry)
+        }
+
+        cardCartoon.setOnClickListener{
+            selectStyle(cardCartoon)
+        }
+
+        cardClay.setOnClickListener{
+            selectStyle(cardClay)
+        }
+
+        cardArtbook.setOnClickListener{
+            selectStyle(cardArtbook)
+        }
+
+
     }
 
     private fun getLongLat(getWeather: (lat: Double, long: Double) -> Unit) {
         Log.i(TAG, "getLongLat() called.")
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
             PackageManager.PERMISSION_GRANTED
         ) {
@@ -140,12 +161,14 @@ class MainActivity : AppCompatActivity() {
                         val latitude = location.latitude
                         val longitude = location.longitude
                         Log.i(TAG, "Lat = $latitude, Long= $longitude")
+                        tvPrompt.text = tvPrompt.text.toString() + "Lat = $latitude, Long= $longitude"
                         Log.i(TAG, "Calling getWeather()...")
                         getWeather(latitude, longitude)
                     }
                 }
         } else {
             Log.i(TAG, "Error at getLongLat(), no location permission.")
+            tvPrompt.text = tvPrompt.text.toString() + "Error at getLongLat(), no location permission."
             getLocationPermission()
         }
     }
@@ -155,7 +178,7 @@ class MainActivity : AppCompatActivity() {
 
 
         // Use fields to define the data types to return.
-        val placeFields: List<Place.Field> = listOf(Place.Field.NAME)
+        val placeFields: List<Place.Field> = listOf(Place.Field.NAME, Place.Field.TYPES)
 
         // Use the builder to create a FindCurrentPlaceRequest.
         val request: FindCurrentPlaceRequest = FindCurrentPlaceRequest.newInstance(placeFields)
@@ -173,6 +196,10 @@ class MainActivity : AppCompatActivity() {
                     if (firstPlaceLikelihood != null) {
                         name = firstPlaceLikelihood.place.name
                         Log.i(TAG, "Location name is $name")
+                        typeOfPlace = firstPlaceLikelihood.place.getPlaceTypes()?.get(0) ?: "location in the real world"
+                        Log.i(TAG, "Location type is $typeOfPlace")
+                        tvPrompt.text = tvPrompt.text.toString() + "Location name is $name"
+                        tvPrompt.text = tvPrompt.text.toString() + "Location type is $typeOfPlace"
                         getLocationFlag = true
                         if (getLocationFlag && getWeatherFlag) {
                             Log.i(TAG, "Calling generate() from getLocation()...")
@@ -181,6 +208,7 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         // location is null error
                         Log.i(TAG, "firstPlaceLikelihood is null")
+                        tvPrompt.text = tvPrompt.text.toString() + "firstPlaceLikelihood is null"
                         val toast = Toast.makeText(
                             this,
                             "We cannot determine your current location. Please try again in a different location.",
@@ -193,6 +221,7 @@ class MainActivity : AppCompatActivity() {
                     val exception = task.exception
                     if (exception is ApiException) {
                         Log.i(TAG, "Place not found: ${exception.statusCode}")
+                        tvPrompt.text = tvPrompt.text.toString() + "Place not found: ${exception.statusCode}"
                     }
                     val toast = Toast.makeText(
                         this,
@@ -222,6 +251,7 @@ class MainActivity : AppCompatActivity() {
 
                 withContext(Dispatchers.Main) {
                     Log.i(TAG, "Weather is: $weather")
+                    tvPrompt.text = tvPrompt.text.toString() + "Weather is: $weather"
                     getWeatherFlag = true
                     if (getLocationFlag && getWeatherFlag) {
                         Log.i(TAG, "Calling generate() from getWeather()...")
@@ -241,22 +271,37 @@ class MainActivity : AppCompatActivity() {
 
     private fun generate() {
         Log.i(TAG, "generate() called.")
+        var question = "dalle3: $name, a $typeOfPlace, at $time"
 
-        val question = "dalle3: $name at $time, weather is broken clouds"
+        when (selectedStyle){
+            cardYarn -> question = "2d scene of $name (a $typeOfPlace) at $time, weather being $weather, entirely crafted from yarn. If $name features mountains, beaches, urban settings, or forests, they are rendered with yarn in colors and textures that mimic the real environment. For mountains, use shades of gray yarn, silver yarn and white yarn; for beaches, the sands are to be shades of yellow yarn and sea shells adorning the shoreline and blue and white yarn for the waves; for urban scenes, use green yellow white black and brown yarn; and for forests, vibrant green and brown yarns. If $name includes water bodies like rivers, lakes, or seas, they are shown with flowing yarn in hues of blue and white, simulating the movement of water. The sky overhead, whether clear, cloudy, or starry, is depicted with yarn in colors that suit the time of day or weather conditions at $name. Flora and fauna, if present in $name, are carefully created with yarn, showcasing their distinct shapes, colors, and textures true to the location's ecology. Any notable man-made features or structures at $name are also woven into the scene with yarn, reflecting their architectural or structural details. This yarn-crafted interpretation of $name brings a unique, tactile dimension to the scene, blending artistry with the essence of the place."
+            cardStarry -> question = "$name, a $typeOfPlace, at $time, weather being $weather, in the style of Vincent Van Gogh."
+            cardDiorama -> question = "$name, a $typeOfPlace, at $time, weather being $weather as a diorama."
+            cardWatercolour -> question = "$name, a $typeOfPlace, at $time, weather being $weather in a delicate watercolor painting."
+            cardTapestry -> question = "$name, a $typeOfPlace, at $time, weather being $weather in a medieval textured woven weave tapestry."
+            cardCartoon -> question = "$name, a $typeOfPlace, at $time, weather being $weather in a bright and bold cartoon style."
+            cardClay -> question = "$name, a $typeOfPlace, at $time, weather being $weather, weather being $weather, in a clay animation style, with a handcrafted, sculpted look."
+            cardArtbook -> question = "$name (a $typeOfPlace) at $time, weather being $weather, as a digital fantasy painting, characterized by its vibrant color palettes and clear definition. It has realistic textures and exaggerated features, often seen in high-quality concept art for video games and animated films, as well as light, shadow, and texture that gives the scene a lively quality. It must look like a hand illustrated digital drawing, with few imperfections. Leans just a touch cartoony."
+        }
+
         Log.i(TAG, "Terraforming prompt: $question")
+        tvPrompt.text = tvPrompt.text.toString() + question
         CoroutineScope(Dispatchers.IO).launch {
             val images = openAI.imageURL( // or openAI.imageJSON
                 creation = ImageCreation(
                     prompt = question,
-                    model = ModelId("dall-e-2"),
+                    model = ModelId("dall-e-3"),
                     n = 1,
-                    size = ImageSize.is1024x1024
+                    size = ImageSize("1024x1024")
                 )
             )
             withContext(Dispatchers.Main) {
-                Log.i("Mine", images[0].url)
+                Log.i(TAG, images[0].url)
                 val url = images[0].url
                 Picasso.get().load(url).into(ivPicture)
+                anim.setVisibility(View.INVISIBLE)
+                anim.cancelAnimation()
+                btnShutter.setVisibility(View.VISIBLE)
             }
         }
     }
@@ -288,6 +333,7 @@ class MainActivity : AppCompatActivity() {
         val formatter = SimpleDateFormat("h a", Locale.getDefault())
         time = formatter.format(currentTime)
         Log.i(TAG, "Current time is $time")
+        tvPrompt.text = tvPrompt.text.toString() + "Current time is $time"
     }
 
     private fun resetVariables() {
@@ -296,5 +342,21 @@ class MainActivity : AppCompatActivity() {
         weather = "clear skies"
         getLocationFlag = false
         getWeatherFlag = false
+        typeOfPlace = ""
+        tvPrompt.text = ""
+    }
+
+    private fun selectStyle(selectedCard: MaterialCardView){
+        if (selectedStyle == selectedCard){
+            selectedCard.setChecked(false)
+            selectedStyle = null
+        }
+        else{
+            selectedStyle?.setChecked(false)
+            selectedStyle = selectedCard
+            selectedCard.setChecked(true)
+        }
     }
 }
+
+

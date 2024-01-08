@@ -8,25 +8,24 @@
 
 
     <com.airbnb.lottie.LottieAnimationView
-        android:id="@+id/loading_animation_xml"
-        android:layout_width="290dp"
-        android:layout_height="290dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.495"
-        app:layout_constraintStart_toStartOf="parent"
+        android:id="@+id/anim"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="@+id/btnShutter"
+        app:layout_constraintStart_toStartOf="@+id/btnShutter"
         app:layout_constraintTop_toTopOf="@+id/btnShutter"
-        app:layout_constraintBottom_toBottomOf="@+id/btnShutter"
+        app:layout_constraintBottom_toBottomOf="@id/btnShutter"
         app:lottie_autoPlay="false"
         app:lottie_loop="true"
-        app:lottie_rawRes="@raw/loading_animation" />
+        app:lottie_rawRes="@raw/loading_animation"
+        tools:layout_editor_absoluteY="488dp" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnShutter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
         android:background="@drawable/shutter_button"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView" />
 
@@ -45,7 +44,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <!--Card 1-->
+            <!--Card Yarn-->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -53,11 +52,11 @@
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardYarn"
-                    android:layout_width="150dp"
-                    android:layout_height="150dp"
-                    android:layout_margin="20dp"
+                    android:layout_width="130dp"
+                    android:layout_height="130dp"
+                    android:layout_margin="18dp"
                     android:checkable="true"
-                    app:cardCornerRadius="20dp"
+                    app:cardCornerRadius="15dp"
                     app:cardElevation="10dp"
                     app:checkedIconSize="0dp"
                     app:strokeColor="@color/card_border_selector"
@@ -66,8 +65,7 @@
                     <ImageView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:src="@drawable/yarn1">
-                    </ImageView>
+                        android:src="@drawable/yarn1" />
 
                 </com.google.android.material.card.MaterialCardView>
 
@@ -75,13 +73,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="Yearning for Yarn">
-                </TextView>
+                    android:text="Yearning for Yarn" />
 
             </LinearLayout>
 
-
-            <!--Card 2-->
+            <!--Card Starry-->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -89,11 +85,11 @@
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardStarry"
-                    android:layout_width="150dp"
-                    android:layout_height="150dp"
-                    android:layout_margin="20dp"
+                    android:layout_width="130dp"
+                    android:layout_height="130dp"
+                    android:layout_margin="18dp"
                     android:checkable="true"
-                    app:cardCornerRadius="20dp"
+                    app:cardCornerRadius="15dp"
                     app:cardElevation="10dp"
                     app:checkedIconSize="0dp"
                     app:strokeColor="@color/card_border_selector"
@@ -102,8 +98,7 @@
                     <ImageView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:src="@drawable/van_gogh">
-                    </ImageView>
+                        android:src="@drawable/van_gogh" />
 
                 </com.google.android.material.card.MaterialCardView>
 
@@ -111,12 +106,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="A very Starry Night">
-                </TextView>
+                    android:text="Very Starry" />
 
             </LinearLayout>
 
-            <!--Card 3-->
+            <!--Card Diorama-->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -124,11 +118,11 @@
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardDiorama"
-                    android:layout_width="150dp"
-                    android:layout_height="150dp"
-                    android:layout_margin="20dp"
+                    android:layout_width="130dp"
+                    android:layout_height="130dp"
+                    android:layout_margin="18dp"
                     android:checkable="true"
-                    app:cardCornerRadius="20dp"
+                    app:cardCornerRadius="15dp"
                     app:cardElevation="10dp"
                     app:checkedIconSize="0dp"
                     app:strokeColor="@color/card_border_selector"
@@ -137,8 +131,7 @@
                     <ImageView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:src="@drawable/diorama">
-                    </ImageView>
+                        android:src="@drawable/diorama" />
 
                 </com.google.android.material.card.MaterialCardView>
 
@@ -146,8 +139,172 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="Diorama Daydream">
-                </TextView>
+                    android:text="Diorama Drama" />
+
+            </LinearLayout>
+
+            <!--Card Watercolour-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardWatercolour"
+                    android:layout_width="130dp"
+                    android:layout_height="130dp"
+                    android:layout_margin="18dp"
+                    android:checkable="true"
+                    app:cardCornerRadius="15dp"
+                    app:cardElevation="10dp"
+                    app:checkedIconSize="0dp"
+                    app:strokeColor="@color/card_border_selector"
+                    app:strokeWidth="10dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/watercolour" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Gentlest Watercolor" />
+
+            </LinearLayout>
+
+            <!--Card cardTapestry-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardTapestry"
+                    android:layout_width="130dp"
+                    android:layout_height="130dp"
+                    android:layout_margin="18dp"
+                    android:checkable="true"
+                    app:cardCornerRadius="15dp"
+                    app:cardElevation="10dp"
+                    app:checkedIconSize="0dp"
+                    app:strokeColor="@color/card_border_selector"
+                    app:strokeWidth="10dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/tapestry" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Medieval Manuscript" />
+
+            </LinearLayout>
+
+            <!--Card Cartoon-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardCartoon"
+                    android:layout_width="130dp"
+                    android:layout_height="130dp"
+                    android:layout_margin="18dp"
+                    android:checkable="true"
+                    app:cardCornerRadius="15dp"
+                    app:cardElevation="10dp"
+                    app:checkedIconSize="0dp"
+                    app:strokeColor="@color/card_border_selector"
+                    app:strokeWidth="10dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/cartoon" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Cartoon Crazy" />
+
+            </LinearLayout>
+
+            <!--Card Clay-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardClay"
+                    android:layout_width="130dp"
+                    android:layout_height="130dp"
+                    android:layout_margin="18dp"
+                    android:checkable="true"
+                    app:cardCornerRadius="15dp"
+                    app:cardElevation="10dp"
+                    app:checkedIconSize="0dp"
+                    app:strokeColor="@color/card_border_selector"
+                    app:strokeWidth="10dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/clay" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Claymation Tarnation" />
+
+            </LinearLayout>
+
+            <!--Card Artbook-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardArtbook"
+                    android:layout_width="130dp"
+                    android:layout_height="130dp"
+                    android:layout_margin="18dp"
+                    android:checkable="true"
+                    app:cardCornerRadius="15dp"
+                    app:cardElevation="10dp"
+                    app:checkedIconSize="0dp"
+                    app:strokeColor="@color/card_border_selector"
+                    app:strokeWidth="10dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/artbook" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Digital Artbook" />
 
             </LinearLayout>
 
@@ -157,12 +314,20 @@
 
     <ImageView
         android:id="@+id/ivPicture"
-        android:layout_width="370dp"
-        android:layout_height="370dp"
-        android:layout_marginTop="22dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/scream_pika"></ImageView>
+        android:adjustViewBounds="true"
+        app:srcCompat="@drawable/shutter" />
+
+    <TextView
+        android:id="@+id/tvPrompt"
+        android:layout_width="335dp"
+        android:layout_height="129dp"
+        app:layout_constraintStart_toEndOf="@+id/btnShutter"
+        app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView"
+        tools:text="DEBUG" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
