@@ -4,30 +4,76 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/black"
     tools:context=".MainActivity">
 
+    <ImageView
+        android:id="@+id/ivPicture"
+        android:layout_width="330dp"
+        android:layout_height="573dp"
+        android:adjustViewBounds="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/shutter47" />
+
+    <TextView
+        android:id="@+id/tvPrompt"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:textSize="11sp"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="@+id/ivPicture"
+        app:layout_constraintStart_toStartOf="@+id/ivPicture"
+        app:layout_constraintTop_toBottomOf="@+id/ivPicture"
+        tools:text="A photo taken at Trevi Fountain, a tourist attraction, at 6pm, weather being broken clouds." />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnShutterSpeed"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@drawable/side_buttons"
+        app:layout_constraintBottom_toBottomOf="@+id/btnShutter"
+        app:layout_constraintEnd_toStartOf="@+id/btnShutter"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/btnShutter" />
+
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnShutter"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/shutter_button"
+        app:layout_constraintEnd_toEndOf="@+id/tvPrompt"
+        app:layout_constraintStart_toStartOf="@+id/tvPrompt"
+        app:layout_constraintTop_toBottomOf="@+id/tvPrompt" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnFilter"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@drawable/side_buttons"
+        app:layout_constraintBottom_toBottomOf="@+id/btnShutter"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btnShutter"
+        app:layout_constraintTop_toTopOf="@+id/btnShutter" />
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/anim"
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@id/btnShutter"
         app:layout_constraintEnd_toEndOf="@+id/btnShutter"
         app:layout_constraintStart_toStartOf="@+id/btnShutter"
         app:layout_constraintTop_toTopOf="@+id/btnShutter"
-        app:layout_constraintBottom_toBottomOf="@id/btnShutter"
         app:lottie_autoPlay="false"
         app:lottie_loop="true"
         app:lottie_rawRes="@raw/loading_animation"
         tools:layout_editor_absoluteY="488dp" />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btnShutter"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:background="@drawable/shutter_button"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView" />
 
     <HorizontalScrollView
         android:id="@+id/horizontalScrollView"
@@ -35,6 +81,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:scrollbars="none"
+        android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@+id/ivPicture">
 
 
@@ -312,22 +359,41 @@
 
     </HorizontalScrollView>
 
-    <ImageView
-        android:id="@+id/ivPicture"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/tvShutterSpeed"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:adjustViewBounds="true"
-        app:srcCompat="@drawable/shutter" />
+        android:layout_marginBottom="4dp"
+        android:text="Location"
+        android:textColor="#B3B3B3"
+        android:textSize="10dp"
+        app:layout_constraintBottom_toTopOf="@+id/btnShutterSpeed"
+        app:layout_constraintEnd_toEndOf="@+id/btnShutterSpeed"
+        app:layout_constraintStart_toStartOf="@+id/btnShutterSpeed" />
 
     <TextView
-        android:id="@+id/tvPrompt"
-        android:layout_width="335dp"
-        android:layout_height="129dp"
-        app:layout_constraintStart_toEndOf="@+id/btnShutter"
-        app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView"
-        tools:text="DEBUG" />
+        android:id="@+id/tvShutter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:text="Shutter"
+        android:textSize="10dp"
+        android:textColor="#B3B3B3"
+        app:layout_constraintBottom_toTopOf="@+id/btnShutter"
+        app:layout_constraintEnd_toEndOf="@+id/btnShutter"
+        app:layout_constraintStart_toStartOf="@+id/btnShutter" />
+
+    <TextView
+        android:id="@+id/tvFilters"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:text="Filters"
+        android:textSize="10dp"
+        android:textColor="#B3B3B3"
+        app:layout_constraintBottom_toTopOf="@+id/btnFilter"
+        app:layout_constraintEnd_toEndOf="@+id/btnFilter"
+        app:layout_constraintStart_toStartOf="@+id/btnFilter" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

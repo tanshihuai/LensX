@@ -11,8 +11,7 @@
     <!-- Inner Circle -->
     <item android:top="6dp" android:right="6dp" android:bottom="6dp" android:left="6dp">
         <shape android:shape="oval">
-            <solid android:color="#FFFFFF"/> <!-- White color -->
+            <solid android:color="#000000"/> <!-- White color -->
         </shape>
     </item>
 </layer-list>
-

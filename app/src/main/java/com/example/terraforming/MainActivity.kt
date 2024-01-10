@@ -271,7 +271,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun generate() {
         Log.i(TAG, "generate() called.")
-        var question = "dalle3: $name, a $typeOfPlace, at $time"
+        var question = "A photo taken at $name, a $typeOfPlace, weather being $weather, at $time."
 
         when (selectedStyle){
             cardYarn -> question = "2d scene of $name (a $typeOfPlace) at $time, weather being $weather, entirely crafted from yarn. If $name features mountains, beaches, urban settings, or forests, they are rendered with yarn in colors and textures that mimic the real environment. For mountains, use shades of gray yarn, silver yarn and white yarn; for beaches, the sands are to be shades of yellow yarn and sea shells adorning the shoreline and blue and white yarn for the waves; for urban scenes, use green yellow white black and brown yarn; and for forests, vibrant green and brown yarns. If $name includes water bodies like rivers, lakes, or seas, they are shown with flowing yarn in hues of blue and white, simulating the movement of water. The sky overhead, whether clear, cloudy, or starry, is depicted with yarn in colors that suit the time of day or weather conditions at $name. Flora and fauna, if present in $name, are carefully created with yarn, showcasing their distinct shapes, colors, and textures true to the location's ecology. Any notable man-made features or structures at $name are also woven into the scene with yarn, reflecting their architectural or structural details. This yarn-crafted interpretation of $name brings a unique, tactile dimension to the scene, blending artistry with the essence of the place."
