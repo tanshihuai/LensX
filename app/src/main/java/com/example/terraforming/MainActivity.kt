@@ -44,14 +44,22 @@ import java.util.Locale
 
 
 class MainActivity : AppCompatActivity() {
+
+    private var bottomSheetDialog: BottomSheetDialog? = null
+    private lateinit var bottomSheetView: View
+
     private lateinit var btnShutter: AppCompatButton
     private lateinit var btnLocation: AppCompatButton
     private lateinit var btnFilters: AppCompatButton
+    private lateinit var animLocation: LottieAnimationView
+    private lateinit var animShutter: LottieAnimationView
+
+
     private lateinit var ivPicture: ImageView
     private lateinit var placesClient: PlacesClient
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var tvPrompt: TextView
-    private lateinit var anim: LottieAnimationView
+
 
     private lateinit var cardYarn: MaterialCardView
     private lateinit var cardStarry: MaterialCardView
@@ -62,10 +70,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var cardClay: MaterialCardView
     private lateinit var cardArtbook: MaterialCardView
 
+
     private val TAG = "My debug"
     private var locationPermissionGranted = false
     private val PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1
 
+
+    private val googleMapsAPIKey = "AIzaSyCciR3XilwS3krTEQDeqVYYiLE8zzc8x90"
     private val openWeatherAPIKey = "6f24d2191ecfc9eb76a31cc11c8c1355"
     private val openAI = OpenAI(
         token = "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"
@@ -78,12 +89,9 @@ class MainActivity : AppCompatActivity() {
     private var getLocationFlag = false
     private var getWeatherFlag = false
     private var selectedStyle: MaterialCardView? = null
-
-    private var bottomSheetDialog: BottomSheetDialog? = null
-    private lateinit var bottomSheetView: View
-
     private val placeArray = arrayListOf<Place>()
-    private var locationButton = false
+    private var placeNames = arrayListOf<String>()
+    private var locationButtonPressed = false
 
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -95,9 +103,10 @@ class MainActivity : AppCompatActivity() {
         btnFilters = findViewById(R.id.btnFilters)
         ivPicture = findViewById(R.id.ivPicture)
         tvPrompt = findViewById(R.id.tvPrompt)
-        anim = findViewById(R.id.anim)
+        animShutter = findViewById(R.id.animShutter)
+        animLocation = findViewById(R.id.animLocation)
 
-        Places.initializeWithNewPlacesApiEnabled (applicationContext, "AIzaSyCciR3XilwS3krTEQDeqVYYiLE8zzc8x90")
+        Places.initializeWithNewPlacesApiEnabled (applicationContext, googleMapsAPIKey)
         placesClient = Places.createClient(this)
 
         // Construct a FusedLocationProviderClient.
@@ -105,24 +114,27 @@ class MainActivity : AppCompatActivity() {
 
         bottomSheetView = layoutInflater.inflate(R.layout.bottom_sheet_horizontal_scroll, null)
 
-        getLocation(::generate)
 
         btnShutter.setOnClickListener {
-            resetVariables()
-            btnShutter.setVisibility(View.INVISIBLE)
-            anim.setVisibility(View.VISIBLE)
-            anim.playAnimation()
-            // TODO: at generate(), make loading button disappear, make shutter button appear
+            startLoading(animShutter, btnShutter)
             Log.i(TAG, "Terraforming. Please wait.")
             getTime()
-            Log.i(TAG, "Calling getLongLat()...")
-            getLongLat(::getWeather)
-            Log.i(TAG, "calling getLocation()...")
-            getLocation(::generate)
+
+            // if location already selected via btnLocation, skip setPlaceArray in btnShutter
+            if (locationButtonPressed){
+                getLocationFlag = true
+                getLongLat(::getWeather)
+            }
+            // if location not yet selected via btnLocation, run setPlaceArray in btnShutter and select place[0]
+            else{
+                getLongLat(::getWeather)
+                setPlaceArray(::generate){}
+            }
         }
 
         btnLocation.setOnClickListener {
-            showBottomSheetDialog()
+            startLoading(animLocation, btnLocation)
+            setPlaceArray(::generate, ::showBottomSheetDialog)
         }
 
         btnFilters.setOnClickListener{
@@ -154,9 +166,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun getLocation(generate: () -> Unit) {
-        Log.i(TAG, "getLocation() called.")
-
+    private fun setPlaceArray(generate: () -> Unit, locationCallback: () -> Unit) {
+        Log.i(TAG, "setPlaceArray() called.")
+        placeArray.clear()
+        placeNames.clear()
 
         // Use fields to define the data types to return.
         val placeFields: List<Place.Field> = listOf(Place.Field.NAME, Place.Field.TYPES)
@@ -165,10 +178,7 @@ class MainActivity : AppCompatActivity() {
         val request: FindCurrentPlaceRequest = FindCurrentPlaceRequest.newInstance(placeFields)
 
         // Call findCurrentPlace and handle the response (first check that the user has granted permission).
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
-            PackageManager.PERMISSION_GRANTED
-        ) {
-
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             val placeResponse = placesClient.findCurrentPlace(request)
             placeResponse.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -176,21 +186,24 @@ class MainActivity : AppCompatActivity() {
                     var count = 0
                     // todo: handle response array being empty
                     for (placeLikelihood: PlaceLikelihood in response?.placeLikelihoods ?: emptyList()) {
-                        if (count >5){
+                        if (count >7){
                             break
                         }
-                        Log.i(TAG, "Place '${placeLikelihood.place.name}' has likelihood: ${placeLikelihood.likelihood}")
                         placeArray.add(placeLikelihood.place)
+                        placeNames.add(placeLikelihood.place.name)
                         count ++
                     }
                     for (place: Place in placeArray){
-                        Log.i(TAG, "Name is ${place.name}, type is ${place.getPlaceTypes().get(0)}")
+                        Log.i(TAG, "Place: ${place.name}, Type: ${place.placeTypes?.get(0)}")
                     }
                     getLocationFlag = true
                     if (getLocationFlag && getWeatherFlag) {
-                        Log.i(TAG, "Calling generate() from getLocation()...")
+                        Log.i(TAG, "Calling generate() from setPlaceArray()...")
+                        name = placeArray[0].name
+                        typeOfPlace = placeArray[0].placeTypes?.get(0).toString()
                         generate()
                     }
+                    locationCallback()
                 } else {
                     // call failed error
                     val exception = task.exception
@@ -259,7 +272,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         Log.i(TAG, "Terraforming prompt: $question")
-        tvPrompt.text = tvPrompt.text.toString() + question
+        tvPrompt.text = tvPrompt.text.toString() + "A photo taken at $name, a $typeOfPlace, weather being $weather, at $time."
         CoroutineScope(Dispatchers.IO).launch {
             val images = openAI.imageURL( // or openAI.imageJSON
                 creation = ImageCreation(
@@ -273,9 +286,7 @@ class MainActivity : AppCompatActivity() {
                 Log.i(TAG, images[0].url)
                 val url = images[0].url
                 Picasso.get().load(url).into(ivPicture)
-                anim.setVisibility(View.INVISIBLE)
-                anim.cancelAnimation()
-                btnShutter.setVisibility(View.VISIBLE)
+                endLoading(animShutter, btnShutter)
             }
         }
     }
@@ -311,39 +322,32 @@ class MainActivity : AppCompatActivity() {
 
     private fun resetVariables() {
         name = ""
+        typeOfPlace = ""
         time = ""
         weather = "clear skies"
         getLocationFlag = false
         getWeatherFlag = false
-        typeOfPlace = ""
         tvPrompt.text = ""
     }
 
     private fun selectStyle(selectedCard: MaterialCardView){
         if (selectedStyle == selectedCard){
-            selectedCard.setChecked(false)
+            selectedCard.isChecked = false
             selectedStyle = null
         }
         else{
-            selectedStyle?.setChecked(false)
+            selectedStyle?.isChecked = false
             selectedStyle = selectedCard
-            selectedCard.setChecked(true)
+            selectedCard.isChecked = true
         }
     }
 
     private fun showBottomSheetDialog(){
+        endLoading(animLocation, btnLocation)
         val bottomSheetDialog = BottomSheetDialog(this)
         val bottomSheetView = layoutInflater.inflate(R.layout.bottom_sheet_layout, null)
         bottomSheetDialog.setContentView(bottomSheetView)
-
         val listView = bottomSheetView.findViewById<ListView>(R.id.listView)
-        var placeNames = arrayListOf<String>()
-
-        for (place: Place in placeArray){
-            placeNames.add(place.name)
-        }
-
-
         val adapter = ArrayAdapter(this, R.layout.list_item_layout, R.id.textViewItem, placeNames)
         listView.adapter = adapter
         bottomSheetDialog.show()
@@ -351,8 +355,9 @@ class MainActivity : AppCompatActivity() {
         listView.setOnItemClickListener { _, _, position, _ ->
             // Handle item click
             name = placeArray[position].name
-            typeOfPlace = placeArray[position].getPlaceTypes()?.get(0).toString()
-            Log.i(TAG, "$name has been clicked")
+            typeOfPlace = placeArray[position].placeTypes?.get(0).toString()
+            Log.i(TAG, "$name has been selected as the location")
+            locationButtonPressed = true
             bottomSheetDialog.dismiss()
         }
     }
@@ -381,6 +386,18 @@ class MainActivity : AppCompatActivity() {
             cardArtbook.setOnClickListener{ selectStyle(cardArtbook) }
         }
         bottomSheetDialog!!.show()
+    }
+
+    private fun startLoading(loadingAnimation: LottieAnimationView, button: AppCompatButton){
+        button.visibility = View.INVISIBLE
+        loadingAnimation.visibility = View.VISIBLE
+        loadingAnimation.playAnimation()
+    }
+
+    private fun endLoading(loadingAnimation: LottieAnimationView, button: AppCompatButton){
+        loadingAnimation.cancelAnimation()
+        loadingAnimation.visibility = View.INVISIBLE
+        button.visibility = View.VISIBLE
     }
 }
 
