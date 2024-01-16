@@ -27,23 +27,39 @@
                 android:id="@+id/textView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="265dp"
-                android:text="The generated image will appear here."
+                android:layout_marginTop="230dp"
+                android:text="Your image will appear here."
                 android:textColor="@color/white"
+                android:textSize="24sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:layout_width="200dp"
+                android:id="@+id/description"
+                android:layout_width="260dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="32dp"
                 android:gravity="center"
-                android:text="This is the end of the guide. Have fun!"
+                android:text="It might take some time to generate and load the image. This is the end of the guide. Have fun!"
                 android:textColor="@color/white"
+                android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="@+id/textView"
                 app:layout_constraintStart_toStartOf="@+id/textView"
                 app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+            <TextView
+                android:layout_width="260dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="100dp"
+                android:gravity="center"
+                android:text="Tap anywhere to continue"
+                android:textColor="@color/quantum_grey"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="@+id/description"
+                app:layout_constraintStart_toStartOf="@+id/description"
+                app:layout_constraintTop_toBottomOf="@+id/description" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 

@@ -1,7 +1,8 @@
 package com.example.terraforming
-//TODO: Make guide go away only when user taps a button
 //TODO: Make both buttons turn when loading
 //TODO: Make image load faster by either changing picasso or resizing image
+//TODO: make guide on first load only
+//TODO: Make image zoomable, savable to photo gallery
 
 import android.Manifest
 import android.app.Dialog
@@ -60,7 +61,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var bottomSheetView: View
     private lateinit var guideStart: View
     private lateinit var guideEnd: View
-    private lateinit var mttp: MaterialTapTargetPrompt
 
     private lateinit var btnShutter: AppCompatButton
     private lateinit var btnLocation: AppCompatButton
@@ -382,6 +382,7 @@ class MainActivity : AppCompatActivity() {
             selectedStyle = selectedCard
             selectedCard.isChecked = true
         }
+        bottomSheetDialog?.dismiss()
     }
 
     private fun showLocationDialog() {
@@ -450,26 +451,32 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun btnLocationGuide() {
-        mttp = MaterialTapTargetPrompt.Builder(this).apply {
+        MaterialTapTargetPrompt.Builder(this).apply {
             setTarget(findViewById(R.id.btnLocation))
-            setPrimaryText("Press this to select your location.")
+            setPrimaryText("Tap here to select your location.")
             setSecondaryText("Select a location around you that you wish to generate a picture of.")
+            setAutoDismiss(false)
+            setFocalRadius(R.dimen.focal_radius_side)
         }.show()!!
     }
 
     private fun btnFiltersGuide() {
         MaterialTapTargetPrompt.Builder(this).apply {
             setTarget(findViewById(R.id.btnFilters))
-            setPrimaryText("Press this to select a filter!")
-            setSecondaryText("Select a filter to apply to the image. You can choose to not apply any filter.")
+            setPrimaryText("Tap here to select a filter.")
+            setSecondaryText("Select a filter you want your picture to have. You can choose to not apply any filter.")
+            setAutoDismiss(false)
+            setFocalRadius(R.dimen.focal_radius_side)
         }.show()
     }
 
     private fun btnShutterGuide() {
         MaterialTapTargetPrompt.Builder(this).apply {
             setTarget(findViewById(R.id.btnShutter))
-            setPrimaryText("Press this to generate photo!")
-            setSecondaryText("It generates an image based on the current location and the filter you have chosen.")
+            setPrimaryText("Tap here to generate a photo.")
+            setSecondaryText("This generates an image based on the current location and the filter you have chosen.")
+            setAutoDismiss(false)
+            setFocalRadius(R.dimen.focal_radius_shutter)
         }.show()
     }
 
@@ -505,13 +512,6 @@ class MainActivity : AppCompatActivity() {
             dialog.dismiss()
         }
         dialog.show()
-    }
-
-    private fun isTouchInsideView(x: Float, y: Float, view: View): Boolean {
-        val location = IntArray(2)
-        view.getLocationOnScreen(location)
-        val rect = Rect(location[0], location[1], location[0] + view.width, location[1] + view.height)
-        return rect.contains(x.toInt(), y.toInt())
     }
 
 }
