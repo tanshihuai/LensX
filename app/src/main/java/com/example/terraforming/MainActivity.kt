@@ -1,14 +1,23 @@
 package com.example.terraforming
-
+//TODO: Make guide go away only when user taps a button
+//TODO: Make both buttons turn when loading
+//TODO: Make image load faster by either changing picasso or resizing image
 
 import android.Manifest
+import android.app.Dialog
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.graphics.Rect
+import android.graphics.drawable.ColorDrawable
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
@@ -16,6 +25,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.aallam.openai.api.image.ImageCreation
@@ -36,6 +46,7 @@ import com.google.android.material.card.MaterialCardView
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.*
 import org.json.JSONObject
+import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt
 import java.lang.Exception
 import java.net.URL
 import java.text.SimpleDateFormat
@@ -47,6 +58,9 @@ class MainActivity : AppCompatActivity() {
 
     private var bottomSheetDialog: BottomSheetDialog? = null
     private lateinit var bottomSheetView: View
+    private lateinit var guideStart: View
+    private lateinit var guideEnd: View
+    private lateinit var mttp: MaterialTapTargetPrompt
 
     private lateinit var btnShutter: AppCompatButton
     private lateinit var btnLocation: AppCompatButton
@@ -65,7 +79,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var cardStarry: MaterialCardView
     private lateinit var cardDiorama: MaterialCardView
     private lateinit var cardWatercolour: MaterialCardView
-    private lateinit var cardTapestry: MaterialCardView
+    private lateinit var cardMaple: MaterialCardView
     private lateinit var cardCartoon: MaterialCardView
     private lateinit var cardClay: MaterialCardView
     private lateinit var cardArtbook: MaterialCardView
@@ -75,12 +89,10 @@ class MainActivity : AppCompatActivity() {
     private var locationPermissionGranted = false
     private val PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1
 
-
-    private val googleMapsAPIKey = "AIzaSyCciR3XilwS3krTEQDeqVYYiLE8zzc8x90"
-    private val openWeatherAPIKey = "6f24d2191ecfc9eb76a31cc11c8c1355"
-    private val openAI = OpenAI(
-        token = "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"
-    )
+    private val googleMapsAPIKey = BuildConfig.googleMapsAPIKey
+    private val openWeatherAPIKey = BuildConfig.openWeatherAPIKey
+    private val openAIAPIKey = BuildConfig.openAIAPIKey
+    private val openAI = OpenAI(openAIAPIKey)
 
     private var name = ""
     private var time = ""
@@ -92,6 +104,7 @@ class MainActivity : AppCompatActivity() {
     private val placeArray = arrayListOf<Place>()
     private var placeNames = arrayListOf<String>()
     private var locationButtonPressed = false
+    private var firstTime = true
 
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -106,39 +119,43 @@ class MainActivity : AppCompatActivity() {
         animShutter = findViewById(R.id.animShutter)
         animLocation = findViewById(R.id.animLocation)
 
-        Places.initializeWithNewPlacesApiEnabled (applicationContext, googleMapsAPIKey)
+        Places.initializeWithNewPlacesApiEnabled(applicationContext, googleMapsAPIKey)
         placesClient = Places.createClient(this)
 
         // Construct a FusedLocationProviderClient.
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
         bottomSheetView = layoutInflater.inflate(R.layout.bottom_sheet_horizontal_scroll, null)
+        initiateGuide()
+        initFiltersDialog()
 
 
+        //TODO: grey out other buttons when button is clicked
         btnShutter.setOnClickListener {
             startLoading(animShutter, btnShutter)
+            tvPrompt.text = ""
             Log.i(TAG, "Terraforming. Please wait.")
             getTime()
 
             // if location already selected via btnLocation, skip setPlaceArray in btnShutter
-            if (locationButtonPressed){
+            if (locationButtonPressed) {
                 getLocationFlag = true
                 getLongLat(::getWeather)
             }
             // if location not yet selected via btnLocation, run setPlaceArray in btnShutter and select place[0]
-            else{
+            else {
                 getLongLat(::getWeather)
-                setPlaceArray(::generate){}
+                setPlaceArray(::generate) {}
             }
         }
 
         btnLocation.setOnClickListener {
             startLoading(animLocation, btnLocation)
-            setPlaceArray(::generate, ::showBottomSheetDialog)
+            setPlaceArray(::generate, ::showLocationDialog)
         }
 
-        btnFilters.setOnClickListener{
-            showOrInitBottomSheetHorizontal()
+        btnFilters.setOnClickListener {
+            bottomSheetDialog!!.show()
         }
     }
 
@@ -161,7 +178,8 @@ class MainActivity : AppCompatActivity() {
                 }
         } else {
             Log.i(TAG, "Error at getLongLat(), no location permission.")
-            tvPrompt.text = tvPrompt.text.toString() + "Error at getLongLat(), no location permission."
+            tvPrompt.text =
+                tvPrompt.text.toString() + "Error at getLongLat(), no location permission."
             getLocationPermission()
         }
     }
@@ -178,29 +196,34 @@ class MainActivity : AppCompatActivity() {
         val request: FindCurrentPlaceRequest = FindCurrentPlaceRequest.newInstance(placeFields)
 
         // Call findCurrentPlace and handle the response (first check that the user has granted permission).
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
             val placeResponse = placesClient.findCurrentPlace(request)
             placeResponse.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val response = task.result
                     var count = 0
                     // todo: handle response array being empty
-                    for (placeLikelihood: PlaceLikelihood in response?.placeLikelihoods ?: emptyList()) {
-                        if (count >7){
+                    for (placeLikelihood: PlaceLikelihood in response?.placeLikelihoods
+                        ?: emptyList()) {
+                        if (count > 7) {
                             break
                         }
                         placeArray.add(placeLikelihood.place)
                         placeNames.add(placeLikelihood.place.name)
-                        count ++
+                        count++
                     }
-                    for (place: Place in placeArray){
+                    for (place: Place in placeArray) {
                         Log.i(TAG, "Place: ${place.name}, Type: ${place.placeTypes?.get(0)}")
                     }
                     getLocationFlag = true
+                    name = placeArray[0].name
+                    typeOfPlace = placeArray[0].placeTypes?.get(0).toString()
                     if (getLocationFlag && getWeatherFlag) {
                         Log.i(TAG, "Calling generate() from setPlaceArray()...")
-                        name = placeArray[0].name
-                        typeOfPlace = placeArray[0].placeTypes?.get(0).toString()
                         generate()
                     }
                     locationCallback()
@@ -209,7 +232,8 @@ class MainActivity : AppCompatActivity() {
                     val exception = task.exception
                     if (exception is ApiException) {
                         Log.i(TAG, "Place not found: ${exception.statusCode}")
-                        tvPrompt.text = tvPrompt.text.toString() + "Place not found: ${exception.statusCode}"
+                        tvPrompt.text =
+                            tvPrompt.text.toString() + "Place not found: ${exception.statusCode}"
                     }
                     val toast = Toast.makeText(
                         this,
@@ -260,19 +284,37 @@ class MainActivity : AppCompatActivity() {
         Log.i(TAG, "generate() called.")
         var question = "A photo taken at $name, a $typeOfPlace, weather being $weather, at $time."
 
-        when (selectedStyle){
-            cardYarn -> question = "2d scene of $name (a $typeOfPlace) at $time, weather being $weather, entirely crafted from yarn. If $name features mountains, beaches, urban settings, or forests, they are rendered with yarn in colors and textures that mimic the real environment. For mountains, use shades of gray yarn, silver yarn and white yarn; for beaches, the sands are to be shades of yellow yarn and sea shells adorning the shoreline and blue and white yarn for the waves; for urban scenes, use green yellow white black and brown yarn; and for forests, vibrant green and brown yarns. If $name includes water bodies like rivers, lakes, or seas, they are shown with flowing yarn in hues of blue and white, simulating the movement of water. The sky overhead, whether clear, cloudy, or starry, is depicted with yarn in colors that suit the time of day or weather conditions at $name. Flora and fauna, if present in $name, are carefully created with yarn, showcasing their distinct shapes, colors, and textures true to the location's ecology. Any notable man-made features or structures at $name are also woven into the scene with yarn, reflecting their architectural or structural details. This yarn-crafted interpretation of $name brings a unique, tactile dimension to the scene, blending artistry with the essence of the place."
-            cardStarry -> question = "$name, a $typeOfPlace, at $time, weather being $weather, in the style of Vincent Van Gogh."
-            cardDiorama -> question = "$name, a $typeOfPlace, at $time, weather being $weather as a diorama."
-            cardWatercolour -> question = "$name, a $typeOfPlace, at $time, weather being $weather in a delicate watercolor painting."
-            cardTapestry -> question = "$name, a $typeOfPlace, at $time, weather being $weather in a medieval textured woven weave tapestry."
-            cardCartoon -> question = "$name, a $typeOfPlace, at $time, weather being $weather in a bright and bold cartoon style."
-            cardClay -> question = "$name, a $typeOfPlace, at $time, weather being $weather, weather being $weather, in a clay animation style, with a handcrafted, sculpted look."
-            cardArtbook -> question = "$name (a $typeOfPlace) at $time, weather being $weather, as a digital fantasy painting, characterized by its vibrant color palettes and clear definition. It has realistic textures and exaggerated features, often seen in high-quality concept art for video games and animated films, as well as light, shadow, and texture that gives the scene a lively quality. It must look like a hand illustrated digital drawing, with few imperfections. Leans just a touch cartoony."
+        when (selectedStyle) {
+            cardYarn -> question =
+                "2d scene of $name (a $typeOfPlace) at $time, weather being $weather, entirely crafted from yarn and balls of yarn."
+
+            cardStarry -> question =
+                "$name, a $typeOfPlace, at $time, weather being $weather, in the style of Vincent Van Gogh."
+
+            cardDiorama -> question =
+                "$name, a $typeOfPlace, at $time, weather being $weather as a diorama."
+
+            cardWatercolour -> question =
+                "$name, a $typeOfPlace, at $time, weather being $weather in a delicate watercolor painting."
+
+            cardMaple -> question =
+                "$name, a $typeOfPlace from the perspective of a player playing in the style of Maplestory, in full color, at $time, weather being $weather"
+
+            cardCartoon -> question =
+                "$name, a $typeOfPlace, at $time, weather being $weather in a bright and bold cartoon style."
+
+            cardClay -> question =
+                "$name, a $typeOfPlace, at $time, weather being $weather, weather being $weather, in a clay animation style, with a handcrafted, sculpted look."
+
+            cardArtbook -> question =
+                "$name (a $typeOfPlace) at $time, weather being $weather, as a digital fantasy painting, characterized by its vibrant color palettes and clear definition. " +
+                        "It has realistic textures and exaggerated features, often seen in high-quality concept art for video games and animated films, " +
+                        "as well as light, shadow, and texture that gives the scene a lively quality. It must look like a hand illustrated digital drawing, with few imperfections. Leans just a touch cartoon-y."
         }
 
         Log.i(TAG, "Terraforming prompt: $question")
-        tvPrompt.text = tvPrompt.text.toString() + "A photo taken at $name, a $typeOfPlace, weather being $weather, at $time."
+        tvPrompt.text =
+            tvPrompt.text.toString() + "A photo taken at $name, a $typeOfPlace, weather being $weather, at $time."
         CoroutineScope(Dispatchers.IO).launch {
             val images = openAI.imageURL( // or openAI.imageJSON
                 creation = ImageCreation(
@@ -287,7 +329,11 @@ class MainActivity : AppCompatActivity() {
                 val url = images[0].url
                 Picasso.get().load(url).into(ivPicture)
                 endLoading(animShutter, btnShutter)
+                resetVariables()
             }
+        }
+        if (firstTime){
+            endGuide()
         }
     }
 
@@ -321,28 +367,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun resetVariables() {
-        name = ""
-        typeOfPlace = ""
         time = ""
         weather = "clear skies"
         getLocationFlag = false
         getWeatherFlag = false
-        tvPrompt.text = ""
     }
 
-    private fun selectStyle(selectedCard: MaterialCardView){
-        if (selectedStyle == selectedCard){
+    private fun selectStyle(selectedCard: MaterialCardView) {
+        if (selectedStyle == selectedCard) {
             selectedCard.isChecked = false
             selectedStyle = null
-        }
-        else{
+        } else {
             selectedStyle?.isChecked = false
             selectedStyle = selectedCard
             selectedCard.isChecked = true
         }
     }
 
-    private fun showBottomSheetDialog(){
+    private fun showLocationDialog() {
         endLoading(animLocation, btnLocation)
         val bottomSheetDialog = BottomSheetDialog(this)
         val bottomSheetView = layoutInflater.inflate(R.layout.bottom_sheet_layout, null)
@@ -358,47 +400,120 @@ class MainActivity : AppCompatActivity() {
             typeOfPlace = placeArray[position].placeTypes?.get(0).toString()
             Log.i(TAG, "$name has been selected as the location")
             locationButtonPressed = true
+            // TODO
+            if (firstTime) {
+                btnFiltersGuide()
+            }
+
             bottomSheetDialog.dismiss()
         }
     }
 
-    private fun showOrInitBottomSheetHorizontal() {
-        if (bottomSheetDialog == null){
-            Log.i(TAG, "Initializing bottom_sheet_horizontal_scroll")
-            bottomSheetDialog = BottomSheetDialog(this)
-            bottomSheetDialog!!.setContentView(bottomSheetView)
-            cardYarn = bottomSheetView.findViewById(R.id.cardYarn)
-            cardStarry = bottomSheetView.findViewById(R.id.cardStarry)
-            cardDiorama = bottomSheetView.findViewById(R.id.cardDiorama)
-            cardWatercolour = bottomSheetView.findViewById(R.id.cardWatercolour)
-            cardTapestry = bottomSheetView.findViewById(R.id.cardTapestry)
-            cardCartoon = bottomSheetView.findViewById(R.id.cardCartoon)
-            cardClay = bottomSheetView.findViewById(R.id.cardClay)
-            cardArtbook = bottomSheetView.findViewById(R.id.cardArtbook)
+    private fun initFiltersDialog() {
+        Log.i(TAG, "Initializing bottom_sheet_horizontal_scroll")
+        bottomSheetDialog = BottomSheetDialog(this)
+        bottomSheetDialog!!.setContentView(bottomSheetView)
+        cardYarn = bottomSheetView.findViewById(R.id.cardYarn)
+        cardStarry = bottomSheetView.findViewById(R.id.cardStarry)
+        cardDiorama = bottomSheetView.findViewById(R.id.cardDiorama)
+        cardWatercolour = bottomSheetView.findViewById(R.id.cardWatercolour)
+        cardMaple = bottomSheetView.findViewById(R.id.cardMaple)
+        cardCartoon = bottomSheetView.findViewById(R.id.cardCartoon)
+        cardClay = bottomSheetView.findViewById(R.id.cardClay)
+        cardArtbook = bottomSheetView.findViewById(R.id.cardArtbook)
 
-            cardYarn.setOnClickListener{ selectStyle(cardYarn) }
-            cardStarry.setOnClickListener{ selectStyle(cardStarry) }
-            cardDiorama.setOnClickListener{ selectStyle(cardDiorama) }
-            cardWatercolour.setOnClickListener{ selectStyle(cardWatercolour) }
-            cardTapestry.setOnClickListener{ selectStyle(cardTapestry) }
-            cardCartoon.setOnClickListener{ selectStyle(cardCartoon) }
-            cardClay.setOnClickListener{ selectStyle(cardClay) }
-            cardArtbook.setOnClickListener{ selectStyle(cardArtbook) }
+        cardYarn.setOnClickListener { selectStyle(cardYarn) }
+        cardStarry.setOnClickListener { selectStyle(cardStarry) }
+        cardDiorama.setOnClickListener { selectStyle(cardDiorama) }
+        cardWatercolour.setOnClickListener { selectStyle(cardWatercolour) }
+        cardMaple.setOnClickListener { selectStyle(cardMaple) }
+        cardCartoon.setOnClickListener { selectStyle(cardCartoon) }
+        cardClay.setOnClickListener { selectStyle(cardClay) }
+        cardArtbook.setOnClickListener { selectStyle(cardArtbook) }
+        bottomSheetDialog!!.setOnDismissListener {
+            if (firstTime) {
+                btnShutterGuide()
+            }
         }
-        bottomSheetDialog!!.show()
     }
 
-    private fun startLoading(loadingAnimation: LottieAnimationView, button: AppCompatButton){
+    private fun startLoading(loadingAnimation: LottieAnimationView, button: AppCompatButton) {
         button.visibility = View.INVISIBLE
         loadingAnimation.visibility = View.VISIBLE
         loadingAnimation.playAnimation()
     }
 
-    private fun endLoading(loadingAnimation: LottieAnimationView, button: AppCompatButton){
+    private fun endLoading(loadingAnimation: LottieAnimationView, button: AppCompatButton) {
         loadingAnimation.cancelAnimation()
         loadingAnimation.visibility = View.INVISIBLE
         button.visibility = View.VISIBLE
     }
+
+    private fun btnLocationGuide() {
+        mttp = MaterialTapTargetPrompt.Builder(this).apply {
+            setTarget(findViewById(R.id.btnLocation))
+            setPrimaryText("Press this to select your location.")
+            setSecondaryText("Select a location around you that you wish to generate a picture of.")
+        }.show()!!
+    }
+
+    private fun btnFiltersGuide() {
+        MaterialTapTargetPrompt.Builder(this).apply {
+            setTarget(findViewById(R.id.btnFilters))
+            setPrimaryText("Press this to select a filter!")
+            setSecondaryText("Select a filter to apply to the image. You can choose to not apply any filter.")
+        }.show()
+    }
+
+    private fun btnShutterGuide() {
+        MaterialTapTargetPrompt.Builder(this).apply {
+            setTarget(findViewById(R.id.btnShutter))
+            setPrimaryText("Press this to generate photo!")
+            setSecondaryText("It generates an image based on the current location and the filter you have chosen.")
+        }.show()
+    }
+
+    private fun initiateGuide() {
+        val dialog = Dialog(this)
+        dialog.setContentView(R.layout.popup_intro)
+        guideStart = dialog.findViewById(R.id.guideStart)
+        dialog.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.setCancelable(true)
+        guideStart.setOnClickListener {
+            dialog.dismiss()
+            btnLocationGuide()
+        }
+        dialog.show()
+
+    }
+
+    private fun endGuide(){
+        val dialog = Dialog(this)
+        dialog.setContentView(R.layout.popup_end)
+        guideEnd = dialog.findViewById(R.id.guideEnd)
+        dialog.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.setCancelable(true)
+        guideEnd.setOnClickListener {
+            dialog.dismiss()
+        }
+        dialog.show()
+    }
+
+    private fun isTouchInsideView(x: Float, y: Float, view: View): Boolean {
+        val location = IntArray(2)
+        view.getLocationOnScreen(location)
+        val rect = Rect(location[0], location[1], location[0] + view.width, location[1] + view.height)
+        return rect.contains(x.toInt(), y.toInt())
+    }
+
 }
 
 

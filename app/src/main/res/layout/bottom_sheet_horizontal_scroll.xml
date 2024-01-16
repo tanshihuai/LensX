@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<HorizontalScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/horizontalScrollView"
     android:layout_width="match_parent"
@@ -49,14 +48,14 @@
 
         </LinearLayout>
 
-        <!--Card Starry-->
+        <!--Card Clay-->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardStarry"
+                android:id="@+id/cardClay"
                 android:layout_width="130dp"
                 android:layout_height="130dp"
                 android:layout_margin="18dp"
@@ -70,7 +69,7 @@
                 <ImageView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:src="@drawable/van_gogh" />
+                    android:src="@drawable/clay" />
 
             </com.google.android.material.card.MaterialCardView>
 
@@ -78,9 +77,43 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Very Starry" />
+                android:text="Claymation Tarnation" />
 
         </LinearLayout>
+
+        <!--Card cardMaple-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardMaple"
+                android:layout_width="130dp"
+                android:layout_height="130dp"
+                android:layout_margin="18dp"
+                android:checkable="true"
+                app:cardCornerRadius="15dp"
+                app:cardElevation="10dp"
+                app:checkedIconSize="0dp"
+                app:strokeColor="@color/card_border_selector"
+                app:strokeWidth="10dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/maple" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Chibi World" />
+
+        </LinearLayout>
+
 
         <!--Card Diorama-->
         <LinearLayout
@@ -148,14 +181,14 @@
 
         </LinearLayout>
 
-        <!--Card cardTapestry-->
+        <!--Card Artbook-->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardTapestry"
+                android:id="@+id/cardArtbook"
                 android:layout_width="130dp"
                 android:layout_height="130dp"
                 android:layout_margin="18dp"
@@ -169,7 +202,7 @@
                 <ImageView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:src="@drawable/tapestry" />
+                    android:src="@drawable/artbook" />
 
             </com.google.android.material.card.MaterialCardView>
 
@@ -177,9 +210,43 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Medieval Manuscript" />
+                android:text="Digital Artbook" />
 
         </LinearLayout>
+
+        <!--Card Starry-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardStarry"
+                android:layout_width="130dp"
+                android:layout_height="130dp"
+                android:layout_margin="18dp"
+                android:checkable="true"
+                app:cardCornerRadius="15dp"
+                app:cardElevation="10dp"
+                app:checkedIconSize="0dp"
+                app:strokeColor="@color/card_border_selector"
+                app:strokeWidth="10dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/van_gogh" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Very Starry" />
+
+        </LinearLayout>
+
 
         <!--Card Cartoon-->
         <LinearLayout
@@ -214,71 +281,6 @@
 
         </LinearLayout>
 
-        <!--Card Clay-->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardClay"
-                android:layout_width="130dp"
-                android:layout_height="130dp"
-                android:layout_margin="18dp"
-                android:checkable="true"
-                app:cardCornerRadius="15dp"
-                app:cardElevation="10dp"
-                app:checkedIconSize="0dp"
-                app:strokeColor="@color/card_border_selector"
-                app:strokeWidth="10dp">
-
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/clay" />
-
-            </com.google.android.material.card.MaterialCardView>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="Claymation Tarnation" />
-
-        </LinearLayout>
-
-        <!--Card Artbook-->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardArtbook"
-                android:layout_width="130dp"
-                android:layout_height="130dp"
-                android:layout_margin="18dp"
-                android:checkable="true"
-                app:cardCornerRadius="15dp"
-                app:cardElevation="10dp"
-                app:checkedIconSize="0dp"
-                app:strokeColor="@color/card_border_selector"
-                app:strokeWidth="10dp">
-
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/artbook" />
-
-            </com.google.android.material.card.MaterialCardView>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="Digital Artbook" />
-
-        </LinearLayout>
 
     </LinearLayout>
 

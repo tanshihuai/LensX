@@ -1,11 +1,21 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
 
+val localProperties = Properties().apply {
+    load(rootProject.file("local.properties").inputStream())
+}
+
 android {
     namespace = "com.example.terraforming"
     compileSdk = 34
+
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
         applicationId = "com.example.terraforming"
@@ -15,6 +25,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "googleMapsAPIKey", localProperties["googleMapsAPIKey"] as String? ?: "\"\"")
+        buildConfigField("String", "openWeatherAPIKey", localProperties["openWeatherAPIKey"] as String? ?: "\"\"")
+        buildConfigField("String", "openAIAPIKey", localProperties["openAIAPIKey"] as String? ?: "\"\"")
     }
 
     buildTypes {
@@ -56,5 +69,6 @@ dependencies {
 
     implementation("com.google.android.material:material:1.5.0")
     implementation("com.airbnb.android:lottie:6.3.0")
+    implementation("uk.co.samuelwall:material-tap-target-prompt:3.3.2")
 
 }
