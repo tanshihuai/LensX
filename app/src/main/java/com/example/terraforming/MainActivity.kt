@@ -1,5 +1,4 @@
 package com.example.terraforming
-//TODO: Make both buttons turn when loading
 //TODO: Make image load faster by either changing picasso or resizing image
 //TODO: make guide on first load only
 //TODO: Make image zoomable, savable to photo gallery
@@ -8,17 +7,14 @@ import android.Manifest
 import android.app.Dialog
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
@@ -26,7 +22,6 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.aallam.openai.api.image.ImageCreation
@@ -48,11 +43,11 @@ import com.squareup.picasso.Picasso
 import kotlinx.coroutines.*
 import org.json.JSONObject
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt
-import java.lang.Exception
 import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.Exception
 
 
 class MainActivity : AppCompatActivity() {
@@ -104,7 +99,10 @@ class MainActivity : AppCompatActivity() {
     private val placeArray = arrayListOf<Place>()
     private var placeNames = arrayListOf<String>()
     private var locationButtonPressed = false
-    private var firstTime = true
+    private var onInitWeatherFlag = false
+    private var onInitLocationFlag = false
+    private var firstTime = false
+
 
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -121,17 +119,19 @@ class MainActivity : AppCompatActivity() {
 
         Places.initializeWithNewPlacesApiEnabled(applicationContext, googleMapsAPIKey)
         placesClient = Places.createClient(this)
-
-        // Construct a FusedLocationProviderClient.
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-
         bottomSheetView = layoutInflater.inflate(R.layout.bottom_sheet_horizontal_scroll, null)
-        initiateGuide()
+
+
         initFiltersDialog()
+        startLoading(animLocation,btnLocation)
+        startLoading(animShutter, btnShutter)
+        InitPlace()
+        getLongLat(::InitWeather)
 
 
-        //TODO: grey out other buttons when button is clicked
         btnShutter.setOnClickListener {
+            btnLocation.isEnabled = false
             startLoading(animShutter, btnShutter)
             tvPrompt.text = ""
             Log.i(TAG, "Terraforming. Please wait.")
@@ -145,11 +145,12 @@ class MainActivity : AppCompatActivity() {
             // if location not yet selected via btnLocation, run setPlaceArray in btnShutter and select place[0]
             else {
                 getLongLat(::getWeather)
-                setPlaceArray(::generate) {}
+                setPlaceArray(::generate)
             }
         }
 
         btnLocation.setOnClickListener {
+            btnShutter.isEnabled = false
             startLoading(animLocation, btnLocation)
             setPlaceArray(::generate, ::showLocationDialog)
         }
@@ -179,7 +180,72 @@ class MainActivity : AppCompatActivity() {
         } else {
             Log.i(TAG, "Error at getLongLat(), no location permission.")
             tvPrompt.text =
-                tvPrompt.text.toString() + "Error at getLongLat(), no location permission."
+                tvPrompt.text.toString() + "Error at getLongLat(), please enable location permission and restart the app."
+            getLocationPermission()
+            // re-enables btn location
+            btnLocation.isEnabled = true
+        }
+    }
+
+    private fun setPlaceArray(generate: () -> Unit) {
+        Log.i(TAG, "setPlaceArray() called.")
+        placeArray.clear()
+        placeNames.clear()
+
+        // Use fields to define the data types to return.
+        val placeFields: List<Place.Field> = listOf(Place.Field.NAME, Place.Field.TYPES)
+
+        // Use the builder to create a FindCurrentPlaceRequest.
+        val request: FindCurrentPlaceRequest = FindCurrentPlaceRequest.newInstance(placeFields)
+
+        // Call findCurrentPlace and handle the response (first check that the user has granted permission).
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            val placeResponse = placesClient.findCurrentPlace(request)
+            placeResponse.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val response = task.result
+                    var count = 0
+                    // todo: handle response array being empty
+                    for (placeLikelihood: PlaceLikelihood in response?.placeLikelihoods
+                        ?: emptyList()) {
+                        if (count > 7) {
+                            break
+                        }
+                        placeArray.add(placeLikelihood.place)
+                        placeNames.add(placeLikelihood.place.name)
+                        count++
+                    }
+                    for (place: Place in placeArray) {
+                        Log.i(TAG, "Place: ${place.name}, Type: ${place.placeTypes?.get(0)}")
+                    }
+                    getLocationFlag = true
+                    name = placeArray[0].name
+                    typeOfPlace = placeArray[0].placeTypes?.get(0).toString()
+                    if (getLocationFlag && getWeatherFlag) {
+                        Log.i(TAG, "Calling generate() from setPlaceArray()...")
+                        generate()
+                    }
+                } else {
+                    // call failed error
+                    val exception = task.exception
+                    if (exception is ApiException) {
+                        Log.i(TAG, "Place not found: ${exception.statusCode}")
+                        tvPrompt.text =
+                            tvPrompt.text.toString() + "Place not found: ${exception.statusCode}"
+                    }
+                    val toast = Toast.makeText(
+                        this,
+                        "We cannot determine your current location. Please try again later.",
+                        Toast.LENGTH_LONG
+                    )
+                    toast.show()
+                }
+            }
+        } else {
             getLocationPermission()
         }
     }
@@ -248,6 +314,75 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun InitPlace() {
+        getTime()
+        Log.i(TAG, "setPlaceArray() called.")
+        placeArray.clear()
+        placeNames.clear()
+
+        // Use fields to define the data types to return.
+        val placeFields: List<Place.Field> = listOf(Place.Field.NAME, Place.Field.TYPES)
+
+        // Use the builder to create a FindCurrentPlaceRequest.
+        val request: FindCurrentPlaceRequest = FindCurrentPlaceRequest.newInstance(placeFields)
+
+        // Call findCurrentPlace and handle the response (first check that the user has granted permission).
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            val placeResponse = placesClient.findCurrentPlace(request)
+            placeResponse.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val response = task.result
+                    var count = 0
+                    // todo: handle response array being empty
+                    for (placeLikelihood: PlaceLikelihood in response?.placeLikelihoods
+                        ?: emptyList()) {
+                        if (count > 7) {
+                            break
+                        }
+                        placeArray.add(placeLikelihood.place)
+                        placeNames.add(placeLikelihood.place.name)
+                        count++
+                    }
+                    for (place: Place in placeArray) {
+                        Log.i(TAG, "Place: ${place.name}, Type: ${place.placeTypes?.get(0)}")
+                    }
+                    getLocationFlag = true
+                    name = placeArray[0].name
+                    typeOfPlace = placeArray[0].placeTypes?.get(0).toString()
+                    onInitLocationFlag = true
+                    if (onInitWeatherFlag && onInitLocationFlag){
+                        updateTvPrompt()
+                        endLoading(animLocation, btnLocation)
+                        endLoading(animShutter, btnShutter)
+                        if (firstTime){
+                            initiateGuide()
+                        }
+                    }
+                } else {
+                    // call failed error
+                    val exception = task.exception
+                    if (exception is ApiException) {
+                        Log.i(TAG, "Place not found: ${exception.statusCode}")
+                        tvPrompt.text =
+                            tvPrompt.text.toString() + "Place not found: ${exception.statusCode}"
+                    }
+                    val toast = Toast.makeText(
+                        this,
+                        "We cannot determine your current location. Please try again later.",
+                        Toast.LENGTH_LONG
+                    )
+                    toast.show()
+                }
+            }
+        } else {
+            getLocationPermission()
+        }
+    }
+
     private fun getWeather(lat: Double, long: Double) {
         Log.i(TAG, "getWeather() called.")
         CoroutineScope(Dispatchers.IO).launch {
@@ -276,6 +411,38 @@ class MainActivity : AppCompatActivity() {
                     Log.i(TAG, "Calling generate() from getWeather() with no weather...")
                     generate()
                 }
+            }
+        }
+    }
+
+    private fun InitWeather(lat: Double, long: Double) {
+        Log.i(TAG, "getWeather() called.")
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val url =
+                    "https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${long}&units=metric&exclude=minutely,hourly,daily,alerts&appid=$openWeatherAPIKey"
+                val resultJson = URL(url).readText()
+                val jsonObject = JSONObject(resultJson)
+                val jsonCurrent = jsonObject.getJSONObject("current")
+                val jsonWeather = jsonCurrent.getJSONArray("weather")
+                val jsonWeather0 = jsonWeather.getJSONObject(0)
+                weather = jsonWeather0.getString("description")
+
+                withContext(Dispatchers.Main) {
+                    Log.i(TAG, "Weather is: $weather")
+                    onInitWeatherFlag = true
+                    if (onInitWeatherFlag && onInitLocationFlag){
+                        updateTvPrompt()
+                        endLoading(animLocation, btnLocation)
+                        endLoading(animShutter, btnShutter)
+                        if (firstTime){
+                            initiateGuide()
+                        }
+
+                    }
+                }
+            } catch (e: Exception) {
+                Log.i(TAG, "exception caught, ${e.localizedMessage}")
             }
         }
     }
@@ -313,28 +480,54 @@ class MainActivity : AppCompatActivity() {
         }
 
         Log.i(TAG, "Terraforming prompt: $question")
-        tvPrompt.text =
-            tvPrompt.text.toString() + "A photo taken at $name, a $typeOfPlace, weather being $weather, at $time."
+        tvPrompt.text = tvPrompt.text.toString() + "A photo taken at $name, a $typeOfPlace, weather being $weather, at $time."
         CoroutineScope(Dispatchers.IO).launch {
-            val images = openAI.imageURL( // or openAI.imageJSON
-                creation = ImageCreation(
-                    prompt = question,
-                    model = ModelId("dall-e-3"),
-                    n = 1,
-                    size = ImageSize("1024x1024")
+            try{
+                val images = openAI.imageURL( // or openAI.imageJSON
+                    creation = ImageCreation(
+                        prompt = question,
+                        model = ModelId("dall-e-3"),
+                        n = 1,
+                        size = ImageSize("1024x1024")
+                    )
                 )
-            )
-            withContext(Dispatchers.Main) {
-                Log.i(TAG, images[0].url)
-                val url = images[0].url
-                Picasso.get().load(url).into(ivPicture)
-                endLoading(animShutter, btnShutter)
-                resetVariables()
+                withContext(Dispatchers.Main) {
+                    Log.i(TAG, images[0].url)
+                    val url = images[0].url
+
+                    Picasso.get()
+                        .load(url)
+                        .centerCrop()
+                        .resize(ivPicture.getMeasuredWidth(),ivPicture.getMeasuredHeight())
+                        .into(ivPicture);
+
+                    endLoading(animShutter, btnShutter)
+                    resetVariables()
+                    // re-enables location button after generate() is called:
+                    // Either generate() call is successful and location button needs to be re-enabled or
+                    // generate() call is unsuccessful but caught and location button needs to be re-enabled
+                    btnLocation.isEnabled = true
+                }
+            }
+            catch (e: Exception){
+                tvPrompt.text = "Image generation failed: $e. Please try again."
+                Log.i(TAG, "Image generation failed at generate(). Error is $e")
+                withContext(Dispatchers.Main) {
+                    // re-enables location button after generate() is called:
+                    // Either generate() call is successful and location button needs to be re-enabled or
+                    // generate() call is unsuccessful but caught and location button needs to be re-enabled
+                    endLoading(animShutter, btnShutter)
+                    resetVariables()
+                    btnLocation.isEnabled = true
+                }
             }
         }
+
+
         if (firstTime){
             endGuide()
         }
+
     }
 
     private fun getLocationPermission() {
@@ -394,18 +587,24 @@ class MainActivity : AppCompatActivity() {
         val adapter = ArrayAdapter(this, R.layout.list_item_layout, R.id.textViewItem, placeNames)
         listView.adapter = adapter
         bottomSheetDialog.show()
+        // re-enables shutter button after locations are showed:
+        // Either user dismisses dialog and shutter button needs to be re-enabled or user taps on a location and shutter button needs to be re-enabled
+        btnShutter.isEnabled = true
+        Log.i(TAG, "btn shutter is enabled")
 
         listView.setOnItemClickListener { _, _, position, _ ->
             // Handle item click
             name = placeArray[position].name
             typeOfPlace = placeArray[position].placeTypes?.get(0).toString()
             Log.i(TAG, "$name has been selected as the location")
+            updateTvPrompt()
             locationButtonPressed = true
-            // TODO
+
+            // continues on with the guide
             if (firstTime) {
+                Log.i(TAG, "btn shutter is enabled")
                 btnFiltersGuide()
             }
-
             bottomSheetDialog.dismiss()
         }
     }
@@ -514,6 +713,8 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
     }
 
+    private fun updateTvPrompt(){
+        tvPrompt.text = "A photo taken at $name, a $typeOfPlace, at $time, weather being $weather."
+    }
+
 }
-
-

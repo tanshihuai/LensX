@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rootLayout"
@@ -11,25 +10,27 @@
 
     <ImageView
         android:id="@+id/ivPicture"
-        android:layout_width="330dp"
-        android:layout_height="573dp"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:adjustViewBounds="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/shutter47" />
+        app:srcCompat="@drawable/shutter471" />
 
     <TextView
         android:id="@+id/tvPrompt"
         android:layout_width="300dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:textSize="11sp"
+        android:layout_height="32dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:text="Loading your location, please wait..."
         android:textColor="@color/white"
-        app:layout_constraintEnd_toEndOf="@+id/ivPicture"
-        app:layout_constraintStart_toStartOf="@+id/ivPicture"
-        app:layout_constraintTop_toBottomOf="@+id/ivPicture"
-        tools:text="A photo taken at Trevi Fountain, a tourist attraction, at 6pm, weather being broken clouds." />
+        android:textSize="11sp"
+        app:layout_constraintBottom_toTopOf="@+id/tvShutter"
+        app:layout_constraintEnd_toEndOf="@+id/btnShutter"
+        app:layout_constraintStart_toStartOf="@+id/btnShutter"
+        tools:text="A photo taken at Trevi Fountain, a tourist attraction, at 6pm, weather being broken clouds" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnLocation"
@@ -46,11 +47,12 @@
         android:id="@+id/btnShutter"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginBottom="32dp"
         android:background="@drawable/shutter_button"
-        app:layout_constraintEnd_toEndOf="@+id/tvPrompt"
-        app:layout_constraintStart_toStartOf="@+id/tvPrompt"
-        app:layout_constraintTop_toBottomOf="@+id/tvPrompt" />
+        app:layout_constraintBottom_toBottomOf="parent
+"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnFilters"
@@ -66,11 +68,11 @@
         android:id="@+id/animLocation"
         android:layout_width="143dp"
         android:layout_height="143dp"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@id/btnLocation"
         app:layout_constraintEnd_toEndOf="@+id/btnLocation"
         app:layout_constraintStart_toStartOf="@+id/btnLocation"
         app:layout_constraintTop_toTopOf="@+id/btnLocation"
-        android:visibility="invisible"
         app:lottie_autoPlay="false"
         app:lottie_loop="true"
         app:lottie_rawRes="@raw/loading_animation" />
@@ -79,11 +81,12 @@
         android:id="@+id/animShutter"
         android:layout_width="172dp"
         android:layout_height="172dp"
+
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@id/btnShutter"
         app:layout_constraintEnd_toEndOf="@+id/btnShutter"
         app:layout_constraintStart_toStartOf="@+id/btnShutter"
         app:layout_constraintTop_toTopOf="@+id/btnShutter"
-        android:visibility="invisible"
         app:lottie_autoPlay="false"
         app:lottie_loop="true"
         app:lottie_rawRes="@raw/loading_animation" />
@@ -107,8 +110,8 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="4dp"
         android:text="Shutter"
-        android:textSize="10dp"
         android:textColor="#B3B3B3"
+        android:textSize="10dp"
         app:layout_constraintBottom_toTopOf="@+id/btnShutter"
         app:layout_constraintEnd_toEndOf="@+id/btnShutter"
         app:layout_constraintStart_toStartOf="@+id/btnShutter" />
@@ -119,8 +122,8 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="4dp"
         android:text="Filters"
-        android:textSize="10dp"
         android:textColor="#B3B3B3"
+        android:textSize="10dp"
         app:layout_constraintBottom_toTopOf="@+id/btnFilters"
         app:layout_constraintEnd_toEndOf="@+id/btnFilters"
         app:layout_constraintStart_toStartOf="@+id/btnFilters" />
