@@ -25,12 +25,12 @@
         android:gravity="center"
         android:text="Loading your location, please wait..."
         android:textColor="@color/white"
-        android:textSize="11sp"
+        android:textSize="14sp"
         app:layout_constraintBottom_toTopOf="@+id/tvShutter"
         app:layout_constraintEnd_toEndOf="@+id/btnShutter"
         app:layout_constraintStart_toStartOf="@+id/btnShutter"
         app:layout_constraintTop_toBottomOf="@+id/ivPicture"
-        tools:text="A photo taken at Trevi Fountain, a tourist attraction, at 6pm, weather being broken clouds" />
+        tools:text="A photo taken at Trevi Fountain, a tourist attraction, at 6pm, weather being broken clouds." />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnLocation"
