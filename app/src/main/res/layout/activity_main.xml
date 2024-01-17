@@ -21,8 +21,7 @@
     <TextView
         android:id="@+id/tvPrompt"
         android:layout_width="300dp"
-        android:layout_height="32dp"
-        android:layout_marginBottom="16dp"
+        android:layout_height="wrap_content"
         android:gravity="center"
         android:text="Loading your location, please wait..."
         android:textColor="@color/white"
@@ -30,6 +29,7 @@
         app:layout_constraintBottom_toTopOf="@+id/tvShutter"
         app:layout_constraintEnd_toEndOf="@+id/btnShutter"
         app:layout_constraintStart_toStartOf="@+id/btnShutter"
+        app:layout_constraintTop_toBottomOf="@+id/ivPicture"
         tools:text="A photo taken at Trevi Fountain, a tourist attraction, at 6pm, weather being broken clouds" />
 
     <androidx.appcompat.widget.AppCompatButton
