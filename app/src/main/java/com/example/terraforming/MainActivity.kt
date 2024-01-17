@@ -522,8 +522,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-
-
         if (firstTime){
             endGuide()
         }
@@ -560,7 +558,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun resetVariables() {
-        time = ""
         weather = "clear skies"
         getLocationFlag = false
         getWeatherFlag = false
