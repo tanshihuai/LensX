@@ -70,5 +70,5 @@ dependencies {
     implementation("com.google.android.material:material:1.5.0")
     implementation("com.airbnb.android:lottie:6.3.0")
     implementation("uk.co.samuelwall:material-tap-target-prompt:3.3.2")
-
+    implementation ("io.github.aghajari:ZoomHelper:1.1.0")
 }

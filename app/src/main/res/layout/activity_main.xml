@@ -9,14 +9,15 @@
     tools:context=".MainActivity">
 
     <ImageView
-        android:id="@+id/ivPicture"
         android:layout_width="match_parent"
+        android:id="@+id/ivPicture"
         android:layout_height="0dp"
+        android:src="@drawable/shutter471"
         android:adjustViewBounds="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/shutter471" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
 
     <TextView
         android:id="@+id/tvPrompt"

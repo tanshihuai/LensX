@@ -1,7 +1,6 @@
 package com.example.terraforming
-//TODO: Make image load faster by either changing picasso or resizing image
-//TODO: make guide on first load only
 //TODO: Make image zoomable, savable to photo gallery
+//TODO: set picasso loading image to prev image(?)
 
 import android.Manifest
 import android.app.Dialog
@@ -12,6 +11,7 @@ import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
@@ -28,6 +28,7 @@ import com.aallam.openai.api.image.ImageCreation
 import com.aallam.openai.api.image.ImageSize
 import com.aallam.openai.api.model.ModelId
 import com.aallam.openai.client.OpenAI
+import com.aghajari.zoomhelper.ZoomHelper
 import com.airbnb.lottie.LottieAnimationView
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -48,6 +49,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import kotlin.Exception
+
 
 
 class MainActivity : AppCompatActivity() {
@@ -101,7 +103,7 @@ class MainActivity : AppCompatActivity() {
     private var locationButtonPressed = false
     private var onInitWeatherFlag = false
     private var onInitLocationFlag = false
-    private var firstTime = false
+    private var firstTime = true
 
 
 
@@ -121,6 +123,16 @@ class MainActivity : AppCompatActivity() {
         placesClient = Places.createClient(this)
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         bottomSheetView = layoutInflater.inflate(R.layout.bottom_sheet_horizontal_scroll, null)
+        ZoomHelper.addZoomableView(ivPicture)
+
+        val sharedPreferences = getSharedPreferences("MySharedPref", MODE_PRIVATE)
+        firstTime = sharedPreferences.getBoolean("isFirstLaunch", true)
+        if (firstTime) {
+            // After showing the guide, set isFirstLaunch to false
+            val editor = sharedPreferences.edit()
+            editor.putBoolean("isFirstLaunch", false)
+            editor.apply()
+        }
 
 
         initFiltersDialog()
@@ -480,7 +492,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         Log.i(TAG, "Terraforming prompt: $question")
-        tvPrompt.text = tvPrompt.text.toString() + "A photo taken at $name, a $typeOfPlace, weather being $weather, at $time."
+        tvPrompt.text = "A photo taken at $name, a $typeOfPlace, weather being $weather, at $time."
         CoroutineScope(Dispatchers.IO).launch {
             try{
                 val images = openAI.imageURL( // or openAI.imageJSON
@@ -497,6 +509,7 @@ class MainActivity : AppCompatActivity() {
 
                     Picasso.get()
                         .load(url)
+                        .placeholder(R.drawable.shutter471)
                         .centerCrop()
                         .resize(ivPicture.getMeasuredWidth(),ivPicture.getMeasuredHeight())
                         .into(ivPicture);
@@ -507,6 +520,7 @@ class MainActivity : AppCompatActivity() {
                     // Either generate() call is successful and location button needs to be re-enabled or
                     // generate() call is unsuccessful but caught and location button needs to be re-enabled
                     btnLocation.isEnabled = true
+                    firstTime = false
                 }
             }
             catch (e: Exception){
@@ -713,5 +727,10 @@ class MainActivity : AppCompatActivity() {
     private fun updateTvPrompt(){
         tvPrompt.text = "A photo taken at $name, a $typeOfPlace, at $time, weather being $weather."
     }
+
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        return ZoomHelper.getInstance().dispatchTouchEvent(ev!!,this) || super.dispatchTouchEvent(ev)
+    }
+
 
 }
