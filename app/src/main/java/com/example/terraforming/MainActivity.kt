@@ -89,6 +89,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var cardCartoon: MaterialCardView
     private lateinit var cardClay: MaterialCardView
     private lateinit var cardArtbook: MaterialCardView
+    private lateinit var cardGen1: MaterialCardView
 
 
     private val TAG = "My debug"
@@ -484,7 +485,7 @@ class MainActivity : AppCompatActivity() {
 
         when (selectedStyle) {
             cardYarn -> question =
-                "2d scene of $name (a $typeOfPlace) at $time, weather being $weather, entirely crafted from yarn and balls of yarn."
+                "$name, a $typeOfPlace, at $time, weather being $weather, in a world crafted entirely from yarn, wool, and crocheting materials. Make it look cute."
 
             cardStarry -> question =
                 "$name, a $typeOfPlace, at $time, weather being $weather, in the style of Vincent Van Gogh."
@@ -502,12 +503,15 @@ class MainActivity : AppCompatActivity() {
                 "$name, a $typeOfPlace, at $time, weather being $weather in a bright and bold cartoon style."
 
             cardClay -> question =
-                "$name, a $typeOfPlace, at $time, weather being $weather, weather being $weather, in a clay animation style, with a handcrafted, sculpted look."
+                "$name, a $typeOfPlace, at $time, weather being $weather, in a clay animation style, with a handcrafted, sculpted look. Make it colorful."
 
             cardArtbook -> question =
                 "$name (a $typeOfPlace) at $time, weather being $weather, as a digital fantasy painting, characterized by its vibrant color palettes and clear definition. " +
                         "It has realistic textures and exaggerated features, often seen in high-quality concept art for video games and animated films, " +
                         "as well as light, shadow, and texture that gives the scene a lively quality. It must look like a hand illustrated digital drawing, with few imperfections. Leans just a touch cartoon-y."
+
+            cardGen1 -> question =
+                "Visualise $name, a $typeOfPlace, at $time, in the style of the Generation 1 Pokemon games. This image should showcase a top-down view"
         }
 
         Log.i(TAG, "Terraforming prompt: $question")
@@ -650,6 +654,7 @@ class MainActivity : AppCompatActivity() {
         cardCartoon = bottomSheetView.findViewById(R.id.cardCartoon)
         cardClay = bottomSheetView.findViewById(R.id.cardClay)
         cardArtbook = bottomSheetView.findViewById(R.id.cardArtbook)
+        cardGen1 = bottomSheetView.findViewById(R.id.cardGen1)
 
         cardYarn.setOnClickListener { selectStyle(cardYarn) }
         cardStarry.setOnClickListener { selectStyle(cardStarry) }
@@ -659,6 +664,7 @@ class MainActivity : AppCompatActivity() {
         cardCartoon.setOnClickListener { selectStyle(cardCartoon) }
         cardClay.setOnClickListener { selectStyle(cardClay) }
         cardArtbook.setOnClickListener { selectStyle(cardArtbook) }
+        cardGen1.setOnClickListener{ selectStyle(cardGen1) }
         bottomSheetDialog!!.setOnDismissListener {
             if (firstTime) {
                 btnShutterGuide()
