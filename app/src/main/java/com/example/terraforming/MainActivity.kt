@@ -1,10 +1,12 @@
 package com.example.terraforming
-//TODO: Make image zoomable, savable to photo gallery
+//TODO: Make image savable to photo gallery
 //TODO: set picasso loading image to prev image(?)
 
 import android.Manifest
 import android.app.Dialog
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.location.Location
@@ -20,6 +22,10 @@ import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import android.content.ContentValues
+import android.content.Context
+import android.os.Environment
+import android.provider.MediaStore
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.app.ActivityCompat
@@ -41,6 +47,7 @@ import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.card.MaterialCardView
 import com.squareup.picasso.Picasso
+import io.ktor.utils.io.errors.IOException
 import kotlinx.coroutines.*
 import org.json.JSONObject
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt
@@ -62,6 +69,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnShutter: AppCompatButton
     private lateinit var btnLocation: AppCompatButton
     private lateinit var btnFilters: AppCompatButton
+    private lateinit var btnSave: AppCompatButton
     private lateinit var animLocation: LottieAnimationView
     private lateinit var animShutter: LottieAnimationView
 
@@ -70,6 +78,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var placesClient: PlacesClient
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var tvPrompt: TextView
+    private lateinit var polaroid: MaterialCardView
 
 
     private lateinit var cardYarn: MaterialCardView
@@ -114,10 +123,12 @@ class MainActivity : AppCompatActivity() {
         btnShutter = findViewById(R.id.btnShutter)
         btnLocation = findViewById(R.id.btnLocation)
         btnFilters = findViewById(R.id.btnFilters)
+        btnSave = findViewById(R.id.btnSave)
         ivPicture = findViewById(R.id.ivPicture)
         tvPrompt = findViewById(R.id.tvPrompt)
         animShutter = findViewById(R.id.animShutter)
         animLocation = findViewById(R.id.animLocation)
+        polaroid = findViewById(R.id.polaroid)
 
         Places.initializeWithNewPlacesApiEnabled(applicationContext, googleMapsAPIKey)
         placesClient = Places.createClient(this)
@@ -169,6 +180,14 @@ class MainActivity : AppCompatActivity() {
 
         btnFilters.setOnClickListener {
             bottomSheetDialog!!.show()
+        }
+
+        btnSave.setOnClickListener{
+            polaroid.post {
+                Log.i(TAG,"btnSave is clicked")
+                var bitmap = createBitmapFromView(polaroid)
+                saveBitmapToGallery(this, bitmap, "terraforming_${System.currentTimeMillis()}")
+            }
         }
     }
 
@@ -492,7 +511,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         Log.i(TAG, "Terraforming prompt: $question")
-        tvPrompt.text = "A photo taken at $name, a $typeOfPlace, weather being $weather, at $time."
+        updateTvPrompt()
         CoroutineScope(Dispatchers.IO).launch {
             try{
                 val images = openAI.imageURL( // or openAI.imageJSON
@@ -537,9 +556,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
         if (firstTime){
-            endGuide()
+            btnSaveGuide()
         }
-
     }
 
     private fun getLocationPermission() {
@@ -690,6 +708,21 @@ class MainActivity : AppCompatActivity() {
         }.show()
     }
 
+    private fun btnSaveGuide() {
+        MaterialTapTargetPrompt.Builder(this).apply {
+            setTarget(findViewById(R.id.btnSave))
+            setPrimaryText("Tap here to save the photo.")
+            setSecondaryText("This saves the polaroid on screen into your phone's photo gallery.")
+            setFocalRadius(R.dimen.focal_radius_shutter)
+            setAutoDismiss(false)
+            setPromptStateChangeListener{ prompt, state ->
+                if (state == MaterialTapTargetPrompt.STATE_FOCAL_PRESSED){
+                    endGuide()
+                }
+            }
+        }.show()
+    }
+
     private fun initiateGuide() {
         val dialog = Dialog(this)
         dialog.setContentView(R.layout.popup_intro)
@@ -705,7 +738,6 @@ class MainActivity : AppCompatActivity() {
             btnLocationGuide()
         }
         dialog.show()
-
     }
 
     private fun endGuide(){
@@ -725,12 +757,64 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateTvPrompt(){
-        tvPrompt.text = "A photo taken at $name, a $typeOfPlace, at $time, weather being $weather."
+        val text1 = "$name, a $typeOfPlace at $time, $weather."
+        tvPrompt.text = text1.replace("_", " ")
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
         return ZoomHelper.getInstance().dispatchTouchEvent(ev!!,this) || super.dispatchTouchEvent(ev)
     }
+
+    private fun createBitmapFromView(view: View): Bitmap {
+        // Define a bitmap with the same size as the view
+        val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+
+        // Bind a canvas to it
+        val canvas = Canvas(bitmap)
+
+        // Get the view's background
+        val bgDrawable = view.background
+        if (bgDrawable != null) {
+            // Has background drawable, then draw it on the Canvas
+            bgDrawable.draw(canvas)
+        } else {
+            // Does not have background drawable, draw white background on the Canvas
+            canvas.drawColor(Color.WHITE)
+        }
+
+        // Draw the view on the canvas
+        view.draw(canvas)
+
+
+        // Return the bitmap
+        return bitmap
+    }
+
+    fun saveBitmapToGallery(context: Context, bitmap: Bitmap, filename: String) {
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, "$filename.jpg")
+            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+
+            // On API Level 29 and above, use the RELATIVE_PATH
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
+                Toast.makeText(this@MainActivity, "Photo saved.",
+                    Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        val resolver = context.contentResolver
+        val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+
+        uri?.let {
+            resolver.openOutputStream(it).use { outputStream ->
+                if (outputStream != null) {
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+                }
+            }
+        } ?: throw IOException("Failed to create new MediaStore record.")
+    }
+
 
 
 }

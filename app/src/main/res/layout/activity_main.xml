@@ -5,53 +5,79 @@
     android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/black"
+    android:background="@drawable/greybackground"
     tools:context=".MainActivity">
 
-    <ImageView
-        android:layout_width="match_parent"
-        android:id="@+id/ivPicture"
-        android:layout_height="0dp"
-        android:src="@drawable/shutter471"
-        android:adjustViewBounds="true"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-
-    <TextView
-        android:id="@+id/tvPrompt"
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Loading your location, please wait..."
-        android:textColor="@color/white"
-        android:textSize="14sp"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/polaroid"
         app:layout_constraintBottom_toTopOf="@+id/tvShutter"
-        app:layout_constraintEnd_toEndOf="@+id/btnShutter"
-        app:layout_constraintStart_toStartOf="@+id/btnShutter"
-        app:layout_constraintTop_toBottomOf="@+id/ivPicture"
-        tools:text="A photo taken at Trevi Fountain, a tourist attraction, at 6pm, weather being broken clouds." />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:rotation="-1"
+        app:cardCornerRadius="5dp"
+        app:cardElevation="5dp"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingLeft="20dp"
+            android:paddingTop="30dp"
+            android:paddingRight="20dp"
+            android:paddingBottom="40dp">
+
+            <ImageView
+                android:id="@+id/ivPicture"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:src="@drawable/maple" />
+
+            <TextView
+                android:id="@+id/tvPrompt"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="33dp"
+                android:fontFamily="@font/cutive_mono"
+                android:gravity="center"
+                android:text="Loading your location, please wait..."
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                tools:text="The streets of Bali at 3pm, cloudy." />
+
+        </LinearLayout>
+
+
+    </com.google.android.material.card.MaterialCardView>
+
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnLocation"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:background="@drawable/side_buttons"
-        app:layout_constraintBottom_toBottomOf="@+id/btnShutter"
-        app:layout_constraintEnd_toStartOf="@+id/btnShutter"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:background="@drawable/locationbutton"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/btnShutter" />
+        app:layout_constraintEnd_toStartOf="@id/btnShutter"
+        app:layout_constraintTop_toTopOf="@+id/btnShutter"
+        app:layout_constraintBottom_toBottomOf="@id/btnShutter" />
 
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnShutter"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_marginBottom="32dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginBottom="22dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         android:background="@drawable/shutter_button"
-        app:layout_constraintBottom_toBottomOf="parent
-"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -59,10 +85,20 @@
         android:id="@+id/btnFilters"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:background="@drawable/side_buttons"
+        android:background="@drawable/filterbutton"
+        app:layout_constraintBottom_toBottomOf="@+id/btnShutter"
+        app:layout_constraintEnd_toStartOf="@+id/btnSave"
+        app:layout_constraintStart_toEndOf="@+id/btnShutter"
+        app:layout_constraintTop_toTopOf="@+id/btnShutter" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnSave"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/filterbutton"
         app:layout_constraintBottom_toBottomOf="@+id/btnShutter"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/btnShutter"
+        app:layout_constraintStart_toEndOf="@+id/btnFilters"
         app:layout_constraintTop_toTopOf="@+id/btnShutter" />
 
     <com.airbnb.lottie.LottieAnimationView
@@ -98,21 +134,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="4dp"
+        android:fontFamily="@font/cutive_mono"
         android:text="Location"
-        android:textColor="#B3B3B3"
-        android:textSize="10dp"
-        app:layout_constraintBottom_toTopOf="@+id/btnLocation"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="@id/btnLocation"
         app:layout_constraintEnd_toEndOf="@+id/btnLocation"
-        app:layout_constraintStart_toStartOf="@+id/btnLocation" />
+        app:layout_constraintBottom_toTopOf="@id/btnLocation" />
+
 
     <TextView
         android:id="@+id/tvShutter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="4dp"
+        android:fontFamily="@font/cutive_mono"
         android:text="Shutter"
-        android:textColor="#B3B3B3"
-        android:textSize="10dp"
+        android:textColor="@color/white"
+        android:textSize="12sp"
         app:layout_constraintBottom_toTopOf="@+id/btnShutter"
         app:layout_constraintEnd_toEndOf="@+id/btnShutter"
         app:layout_constraintStart_toStartOf="@+id/btnShutter" />
@@ -122,12 +161,26 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="4dp"
+        android:fontFamily="@font/cutive_mono"
         android:text="Filters"
-        android:textColor="#B3B3B3"
-        android:textSize="10dp"
+        android:textColor="@color/white"
+        android:textSize="12sp"
         app:layout_constraintBottom_toTopOf="@+id/btnFilters"
         app:layout_constraintEnd_toEndOf="@+id/btnFilters"
         app:layout_constraintStart_toStartOf="@+id/btnFilters" />
+
+    <TextView
+        android:id="@+id/tvSave"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:fontFamily="@font/cutive_mono"
+        android:text="Save"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@+id/btnSave"
+        app:layout_constraintEnd_toEndOf="@+id/btnSave"
+        app:layout_constraintStart_toStartOf="@+id/btnSave" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

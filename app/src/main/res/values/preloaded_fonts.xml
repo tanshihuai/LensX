@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="preloaded_fonts" translatable="false">
+        <item>@font/cutive</item>
+        <item>@font/cutive_mono</item>
+        <item>@font/dancing_script_bold</item>
+        <item>@font/lobster</item>
+        <item>@font/major_mono_display</item>
+        <item>@font/pacifico</item>
+        <item>@font/playfair_display</item>
+    </array>
+</resources>

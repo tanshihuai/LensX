@@ -4,5 +4,5 @@
     android:thickness="3dp"
     android:useLevel="false">
     <!-- Use a stroke to define the width and color of the ring border -->
-    <stroke android:color="#F1F1F1" android:width="3.5dp"/>
+    <stroke android:color="#DDDDFF" android:width="3dp"/>
 </shape>
