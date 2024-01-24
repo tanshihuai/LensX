@@ -26,6 +26,8 @@ import android.content.ContentValues
 import android.content.Context
 import android.os.Environment
 import android.provider.MediaStore
+import android.widget.Switch
+import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.app.ActivityCompat
@@ -66,6 +68,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var guideStart: View
     private lateinit var guideEnd: View
 
+    private lateinit var btnSwitch: Switch
     private lateinit var btnShutter: AppCompatButton
     private lateinit var btnLocation: AppCompatButton
     private lateinit var btnFilters: AppCompatButton
@@ -78,6 +81,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var placesClient: PlacesClient
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var tvPrompt: TextView
+    private lateinit var tvSwitchGuide: TextView
     private lateinit var polaroid: MaterialCardView
 
 
@@ -90,6 +94,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var cardClay: MaterialCardView
     private lateinit var cardArtbook: MaterialCardView
     private lateinit var cardGen1: MaterialCardView
+    private lateinit var cardCopic: MaterialCardView
 
 
     private val TAG = "My debug"
@@ -105,6 +110,7 @@ class MainActivity : AppCompatActivity() {
     private var time = ""
     private var weather = "clear skies"
     private var typeOfPlace = ""
+    private var indoorOutdoor = "Indoor"
     private var getLocationFlag = false
     private var getWeatherFlag = false
     private var selectedStyle: MaterialCardView? = null
@@ -121,12 +127,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        btnSwitch = findViewById(R.id.btnSwitch)
         btnShutter = findViewById(R.id.btnShutter)
         btnLocation = findViewById(R.id.btnLocation)
         btnFilters = findViewById(R.id.btnFilters)
         btnSave = findViewById(R.id.btnSave)
         ivPicture = findViewById(R.id.ivPicture)
         tvPrompt = findViewById(R.id.tvPrompt)
+        tvSwitchGuide = findViewById(R.id.tvSwitchGuide)
         animShutter = findViewById(R.id.animShutter)
         animLocation = findViewById(R.id.animLocation)
         polaroid = findViewById(R.id.polaroid)
@@ -188,6 +196,17 @@ class MainActivity : AppCompatActivity() {
                 Log.i(TAG,"btnSave is clicked")
                 var bitmap = createBitmapFromView(polaroid)
                 saveBitmapToGallery(this, bitmap, "terraforming_${System.currentTimeMillis()}")
+            }
+        }
+        
+        btnSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (isChecked){
+                Log.i(TAG,"This is now outdoors")
+                indoorOutdoor = "Outdoor"
+            }
+            else{
+                Log.i(TAG,"This is now indoors")
+                indoorOutdoor = "Indoor"
             }
         }
     }
@@ -483,36 +502,78 @@ class MainActivity : AppCompatActivity() {
         Log.i(TAG, "generate() called.")
         var question = "A photo taken at $name, a $typeOfPlace, weather being $weather, at $time."
 
-        when (selectedStyle) {
-            cardYarn -> question =
-                "$name, a $typeOfPlace, at $time, weather being $weather, in a world crafted entirely from yarn, wool, and crocheting materials. Make it look cute."
+        if (indoorOutdoor == "Outdoor"){
+            when (selectedStyle) {
+                cardYarn -> question =
+                    "$name, a $typeOfPlace, at $time, weather being $weather, in a world crafted entirely from yarn, wool, and crocheting materials. Make it look cute."
 
-            cardStarry -> question =
-                "$name, a $typeOfPlace, at $time, weather being $weather, in the style of Vincent Van Gogh."
+                cardStarry -> question =
+                    "$name, a $typeOfPlace, at $time, weather being $weather, in the style of Vincent Van Gogh."
 
-            cardDiorama -> question =
-                "$name, a $typeOfPlace, at $time, weather being $weather as a diorama."
+                cardDiorama -> question =
+                    "$name, a $typeOfPlace, at $time, weather being $weather as a diorama."
 
-            cardWatercolour -> question =
-                "$name, a $typeOfPlace, at $time, weather being $weather in a delicate watercolor painting."
+                cardWatercolour -> question =
+                    "$name, a $typeOfPlace, at $time, weather being $weather in a delicate watercolor painting."
 
-            cardMaple -> question =
-                "$name, a $typeOfPlace from the perspective of a player playing in the style of Maplestory, in full color, at $time, weather being $weather"
+                cardMaple -> question =
+                    "$name, a $typeOfPlace from the perspective of a player playing in the style of Maplestory, in full color, at $time, weather being $weather"
 
-            cardCartoon -> question =
-                "$name, a $typeOfPlace, at $time, weather being $weather in a bright and bold cartoon style."
+                cardCartoon -> question =
+                    "$name, a $typeOfPlace, at $time, weather being $weather in a bright and bold cartoon style."
 
-            cardClay -> question =
-                "$name, a $typeOfPlace, at $time, weather being $weather, in a clay animation style, with a handcrafted, sculpted look. Make it colorful."
+                cardClay -> question =
+                    "$name, a $typeOfPlace, at $time, weather being $weather, in a clay animation style, with a handcrafted, sculpted look. Make it colorful."
 
-            cardArtbook -> question =
-                "$name (a $typeOfPlace) at $time, weather being $weather, as a digital fantasy painting, characterized by its vibrant color palettes and clear definition. " +
-                        "It has realistic textures and exaggerated features, often seen in high-quality concept art for video games and animated films, " +
-                        "as well as light, shadow, and texture that gives the scene a lively quality. It must look like a hand illustrated digital drawing, with few imperfections. Leans just a touch cartoon-y."
+                cardArtbook -> question =
+                    "$name (a $typeOfPlace) at $time, weather being $weather, as a digital fantasy painting, characterized by its vibrant color palettes and clear definition. " +
+                            "It has realistic textures and exaggerated features, often seen in high-quality concept art for video games and animated films, " +
+                            "as well as light, shadow, and texture that gives the scene a lively quality. It must look like a hand illustrated digital drawing, with few imperfections. Leans just a touch cartoon-y."
 
-            cardGen1 -> question =
-                "Visualise $name, a $typeOfPlace, at $time, in the style of the Generation 1 Pokemon games. This image should showcase a top-down view"
+                cardGen1 -> question =
+                    "Visualise $name, a $typeOfPlace, at $time, in the style of the Generation 1 Pokemon games. This image should showcase a top-down view"
+
+                cardCopic -> question =
+                    "$name, a $typeOfPlace, at $time, weather being $weather, in the style of an architect's perspective view copic marker sketch."
+            }
         }
+        else{
+            when (selectedStyle) {
+                cardYarn -> question =
+                    "The interior of $name, a $typeOfPlace, from a human eye level at $time, in a world crafted entirely from yarn, wool, and crocheting materials. Make it look cute."
+
+                cardStarry -> question =
+                    "The interior of $name, a $typeOfPlace, from a human eye level at $time, in the style of Vincent Van Gogh."
+
+                cardDiorama -> question =
+                    "The interior of $name, a $typeOfPlace, from a human eye level at $time, as a diorama."
+
+                cardWatercolour -> question =
+                    "The interior of $name, a $typeOfPlace, from a human eye level at $time, in a delicate watercolor painting."
+
+                cardMaple -> question =
+                    "The interior of $name, a $typeOfPlace from a human eye level at $time, from the perspective of a player playing in the style of Maplestory, in full color."
+
+                cardCartoon -> question =
+                    "The interior of $name, a $typeOfPlace, from a human eye level at $time, in a bright and bold cartoon style."
+
+                cardClay -> question =
+                    "The interior of $name, a $typeOfPlace, from a human eye level at $time, in a clay animation style, with a handcrafted, sculpted look. Make it colorful."
+
+                cardArtbook -> question =
+                    "The interior of $name (a $typeOfPlace) from a human eye level at $time, as a digital fantasy painting, characterized by its vibrant color palettes and clear definition. " +
+                            "It has realistic textures and exaggerated features, often seen in high-quality concept art for video games and animated films, " +
+                            "as well as light, shadow, and texture that gives the scene a lively quality. It must look like a hand illustrated digital drawing, with few imperfections. Leans just a touch cartoon-y."
+
+                cardGen1 -> question =
+                    "Visualise the interior of $name, a $typeOfPlace, from a human eye level at $time, in the style of the Generation 1 Pokemon games. This image should showcase a top-down view"
+
+                cardCopic -> question =
+                    "The interior of $name, a $typeOfPlace, from a human eye level at $time, in the style of an architect's perspective view copic marker sketch."
+            }
+        }
+
+
 
         Log.i(TAG, "Terraforming prompt: $question")
         updateTvPrompt()
@@ -636,7 +697,7 @@ class MainActivity : AppCompatActivity() {
             // continues on with the guide
             if (firstTime) {
                 Log.i(TAG, "btn shutter is enabled")
-                btnFiltersGuide()
+                btnSwitchGuide()
             }
             bottomSheetDialog.dismiss()
         }
@@ -655,6 +716,7 @@ class MainActivity : AppCompatActivity() {
         cardClay = bottomSheetView.findViewById(R.id.cardClay)
         cardArtbook = bottomSheetView.findViewById(R.id.cardArtbook)
         cardGen1 = bottomSheetView.findViewById(R.id.cardGen1)
+        cardCopic = bottomSheetView.findViewById(R.id.cardCopic)
 
         cardYarn.setOnClickListener { selectStyle(cardYarn) }
         cardStarry.setOnClickListener { selectStyle(cardStarry) }
@@ -665,6 +727,8 @@ class MainActivity : AppCompatActivity() {
         cardClay.setOnClickListener { selectStyle(cardClay) }
         cardArtbook.setOnClickListener { selectStyle(cardArtbook) }
         cardGen1.setOnClickListener{ selectStyle(cardGen1) }
+        cardCopic.setOnClickListener{ selectStyle(cardCopic) }
+
         bottomSheetDialog!!.setOnDismissListener {
             if (firstTime) {
                 btnShutterGuide()
@@ -690,9 +754,25 @@ class MainActivity : AppCompatActivity() {
             setPrimaryText("Tap here to select your location.")
             setSecondaryText("Select a location around you that you wish to generate a picture of.")
             setAutoDismiss(false)
-            setFocalRadius(R.dimen.focal_radius_side)
+            setFocalRadius(R.dimen.focal_radius_location_filter)
         }.show()!!
     }
+
+    private fun btnSwitchGuide() {
+        MaterialTapTargetPrompt.Builder(this).apply {
+            setTarget(findViewById(R.id.tvSwitchGuide))
+            setPrimaryText("Tap here to select whether you are indoors or outdoors.")
+            setSecondaryText("Your image will vary depending on whether you are indoors or outdoors.")
+            setAutoDismiss(false)
+            setFocalRadius(R.dimen.focal_radius_save)
+            setPromptStateChangeListener{ prompt, state ->
+                if (state == MaterialTapTargetPrompt.STATE_FOCAL_PRESSED){
+                    btnFiltersGuide()
+                }
+            }
+        }.show()!!
+    }
+
 
     private fun btnFiltersGuide() {
         MaterialTapTargetPrompt.Builder(this).apply {
@@ -700,7 +780,7 @@ class MainActivity : AppCompatActivity() {
             setPrimaryText("Tap here to select a filter.")
             setSecondaryText("Select a filter you want your picture to have. You can choose to not apply any filter.")
             setAutoDismiss(false)
-            setFocalRadius(R.dimen.focal_radius_side)
+            setFocalRadius(R.dimen.focal_radius_location_filter)
         }.show()
     }
 
@@ -719,7 +799,7 @@ class MainActivity : AppCompatActivity() {
             setTarget(findViewById(R.id.btnSave))
             setPrimaryText("Tap here to save the photo.")
             setSecondaryText("This saves the polaroid on screen into your phone's photo gallery.")
-            setFocalRadius(R.dimen.focal_radius_shutter)
+            setFocalRadius(R.dimen.focal_radius_save)
             setAutoDismiss(false)
             setPromptStateChangeListener{ prompt, state ->
                 if (state == MaterialTapTargetPrompt.STATE_FOCAL_PRESSED){

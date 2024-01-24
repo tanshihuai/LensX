@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked="true">
+        <layer-list>
+            <item>
+                <shape android:shape="rectangle">
+                    <!-- This is a transparent layer that might be the same size as the thumb -->
+                </shape>
+            </item>
+            <item android:top="8sp" android:bottom="8sp" android:left="8dp" android:right="8dp">
+                <shape android:shape="rectangle">
+                    <solid android:color="@android:color/white"/>
+                    <corners android:radius="10dp"/>
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+
+
+
+    <item android:state_checked="false">
+        <layer-list>
+            <item>
+                <shape android:shape="rectangle">
+                    <!-- This is a transparent layer that might be the same size as the thumb -->
+                </shape>
+            </item>
+            <item android:top="8sp" android:bottom="8sp" android:left="8dp" android:right="8dp">
+                <shape android:shape="rectangle">
+                    <solid android:color="@color/white"/> <!-- Replace with your desired color -->
+                    <corners android:radius="10dp"/>
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+
+
+
+</selector>

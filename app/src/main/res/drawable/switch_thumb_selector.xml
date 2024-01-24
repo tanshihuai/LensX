@@ -1,0 +1,16 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- When switch is checked -->
+    <item android:state_checked="true">
+        <shape android:shape="oval">
+            <solid android:color="#BBBBFF"/> <!-- Transparent fill -->
+            <size android:width="20dp" android:height="20dp"/>
+        </shape>
+    </item>
+    <!-- When switch is unchecked -->
+    <item android:state_checked="false">
+        <shape android:shape="oval">
+            <solid android:color="#BBBBFF"/> <!-- Transparent fill -->
+            <size android:width="20dp" android:height="20dp"/>
+        </shape>
+    </item>
+</selector>

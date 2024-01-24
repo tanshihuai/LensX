@@ -10,7 +10,6 @@
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/polaroid"
-        app:layout_constraintBottom_toTopOf="@+id/tvShutter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -18,6 +17,7 @@
         android:rotation="-1"
         app:cardCornerRadius="5dp"
         app:cardElevation="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/tvShutter"
 
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
@@ -60,15 +60,45 @@
     </com.google.android.material.card.MaterialCardView>
 
 
+    <Switch
+        android:id="@+id/btnSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/cutive"
+        android:rotation="90"
+        android:textOff="Outdoors"
+        android:textOn="Indoors"
+        android:thumb="@drawable/switch_thumb_selector"
+        android:track="@drawable/switch_track_selector"
+        app:layout_constraintBottom_toBottomOf="@id/btnShutter"
+        app:layout_constraintEnd_toStartOf="@+id/btnLocation"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/btnShutter" />
+
+    <TextView
+        android:id="@+id/tvSwitchGuide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/cutive_mono"
+        android:text="q"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/btnShutter"
+        app:layout_constraintEnd_toEndOf="@id/btnSwitch"
+        app:layout_constraintStart_toStartOf="@id/btnSwitch"
+        app:layout_constraintTop_toTopOf="@id/btnShutter" />
+
+
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnLocation"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:background="@drawable/locationbutton"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/btnShutter"
         app:layout_constraintEnd_toStartOf="@id/btnShutter"
-        app:layout_constraintTop_toTopOf="@+id/btnShutter"
-        app:layout_constraintBottom_toBottomOf="@id/btnShutter" />
+        app:layout_constraintStart_toEndOf="@+id/btnSwitch"
+        app:layout_constraintTop_toTopOf="@+id/btnShutter" />
 
 
     <androidx.appcompat.widget.AppCompatButton
@@ -76,8 +106,8 @@
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_marginBottom="22dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         android:background="@drawable/shutter_button"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -128,6 +158,33 @@
         app:lottie_loop="true"
         app:lottie_rawRes="@raw/loading_animation" />
 
+    <TextView
+        android:id="@+id/tvIndoors"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:fontFamily="@font/cutive_mono"
+        android:text="Indoor"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@id/btnSwitch"
+        app:layout_constraintEnd_toEndOf="@+id/btnSwitch"
+        app:layout_constraintHorizontal_bias="0.333"
+        app:layout_constraintStart_toStartOf="@id/btnSwitch" />
+
+    <TextView
+        android:id="@+id/tvOutdoors"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:fontFamily="@font/cutive_mono"
+        android:text="Outdoor"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@+id/btnSwitch"
+        app:layout_constraintStart_toStartOf="@id/btnSwitch"
+        app:layout_constraintTop_toBottomOf="@id/btnSwitch" />
+
 
     <TextView
         android:id="@+id/tvLocation"
@@ -138,9 +195,9 @@
         android:text="Location"
         android:textColor="@color/white"
         android:textSize="12sp"
-        app:layout_constraintStart_toStartOf="@id/btnLocation"
+        app:layout_constraintBottom_toTopOf="@id/btnLocation"
         app:layout_constraintEnd_toEndOf="@+id/btnLocation"
-        app:layout_constraintBottom_toTopOf="@id/btnLocation" />
+        app:layout_constraintStart_toStartOf="@id/btnLocation" />
 
 
     <TextView
