@@ -47,11 +47,11 @@
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="33dp"
-                android:fontFamily="@font/cutive_mono"
+                android:fontFamily="@font/typeka_regular"
                 android:gravity="center"
                 android:text="Loading your location, please wait..."
                 android:textColor="@color/black"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 tools:text="The streets of Bali at 3pm, cloudy." />
 
         </LinearLayout>
