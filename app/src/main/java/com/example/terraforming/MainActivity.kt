@@ -60,7 +60,6 @@ import java.util.Locale
 import kotlin.Exception
 
 
-
 class MainActivity : AppCompatActivity() {
 
     private var bottomSheetDialog: BottomSheetDialog? = null
@@ -75,6 +74,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnSave: AppCompatButton
     private lateinit var animLocation: LottieAnimationView
     private lateinit var animShutter: LottieAnimationView
+    private lateinit var animPolaroid: LottieAnimationView
 
 
     private lateinit var ivPicture: ImageView
@@ -122,7 +122,6 @@ class MainActivity : AppCompatActivity() {
     private var firstTime = true
 
 
-
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -138,6 +137,7 @@ class MainActivity : AppCompatActivity() {
         animShutter = findViewById(R.id.animShutter)
         animLocation = findViewById(R.id.animLocation)
         polaroid = findViewById(R.id.polaroid)
+        animPolaroid = findViewById(R.id.animPolaroid)
 
         Places.initializeWithNewPlacesApiEnabled(applicationContext, googleMapsAPIKey)
         placesClient = Places.createClient(this)
@@ -156,7 +156,7 @@ class MainActivity : AppCompatActivity() {
 
 
         initFiltersDialog()
-        startLoading(animLocation,btnLocation)
+        startLoading(animLocation, btnLocation)
         startLoading(animShutter, btnShutter)
         InitPlace()
         getLongLat(::InitWeather)
@@ -191,21 +191,20 @@ class MainActivity : AppCompatActivity() {
             bottomSheetDialog!!.show()
         }
 
-        btnSave.setOnClickListener{
+        btnSave.setOnClickListener {
             polaroid.post {
-                Log.i(TAG,"btnSave is clicked")
+                Log.i(TAG, "btnSave is clicked")
                 var bitmap = createBitmapFromView(polaroid)
                 saveBitmapToGallery(this, bitmap, "terraforming_${System.currentTimeMillis()}")
             }
         }
-        
+
         btnSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
-            if (isChecked){
-                Log.i(TAG,"This is now outdoors")
+            if (isChecked) {
+                Log.i(TAG, "This is now outdoors")
                 indoorOutdoor = "Outdoor"
-            }
-            else{
-                Log.i(TAG,"This is now indoors")
+            } else {
+                Log.i(TAG, "This is now indoors")
                 indoorOutdoor = "Indoor"
             }
         }
@@ -405,11 +404,11 @@ class MainActivity : AppCompatActivity() {
                     name = placeArray[0].name
                     typeOfPlace = placeArray[0].placeTypes?.get(0).toString()
                     onInitLocationFlag = true
-                    if (onInitWeatherFlag && onInitLocationFlag){
+                    if (onInitWeatherFlag && onInitLocationFlag) {
                         updateTvPrompt()
                         endLoading(animLocation, btnLocation)
                         endLoading(animShutter, btnShutter)
-                        if (firstTime){
+                        if (firstTime) {
                             initiateGuide()
                         }
                     }
@@ -482,11 +481,11 @@ class MainActivity : AppCompatActivity() {
                 withContext(Dispatchers.Main) {
                     Log.i(TAG, "Weather is: $weather")
                     onInitWeatherFlag = true
-                    if (onInitWeatherFlag && onInitLocationFlag){
+                    if (onInitWeatherFlag && onInitLocationFlag) {
                         updateTvPrompt()
                         endLoading(animLocation, btnLocation)
                         endLoading(animShutter, btnShutter)
-                        if (firstTime){
+                        if (firstTime) {
                             initiateGuide()
                         }
 
@@ -502,7 +501,7 @@ class MainActivity : AppCompatActivity() {
         Log.i(TAG, "generate() called.")
         var question = "A photo taken at $name, a $typeOfPlace, weather being $weather, at $time."
 
-        if (indoorOutdoor == "Outdoor"){
+        if (indoorOutdoor == "Outdoor") {
             when (selectedStyle) {
                 cardYarn -> question =
                     "$name, a $typeOfPlace, at $time, weather being $weather, in a world crafted entirely from yarn, wool, and crocheting materials. Make it look cute."
@@ -536,8 +535,7 @@ class MainActivity : AppCompatActivity() {
                 cardCopic -> question =
                     "$name, a $typeOfPlace, at $time, weather being $weather, in the style of an architect's perspective view copic marker sketch."
             }
-        }
-        else{
+        } else {
             when (selectedStyle) {
                 cardYarn -> question =
                     "The interior of $name, a $typeOfPlace, from a human eye level at $time, in a world crafted entirely from yarn, wool, and crocheting materials. Make it look cute."
@@ -578,7 +576,7 @@ class MainActivity : AppCompatActivity() {
         Log.i(TAG, "Terraforming prompt: $question")
         updateTvPrompt()
         CoroutineScope(Dispatchers.IO).launch {
-            try{
+            try {
                 val images = openAI.imageURL( // or openAI.imageJSON
                     creation = ImageCreation(
                         prompt = question,
@@ -591,13 +589,33 @@ class MainActivity : AppCompatActivity() {
                     Log.i(TAG, images[0].url)
                     val url = images[0].url
 
+                    animPolaroid.setVisibility(View.VISIBLE);
+                    animPolaroid.playAnimation();
+
+
                     Picasso.get()
                         .load(url)
-                        .placeholder(R.drawable.shutter471)
+                        .placeholder(R.drawable.loading)
                         .centerCrop()
-                        .resize(ivPicture.getMeasuredWidth(),ivPicture.getMeasuredHeight())
-                        .into(ivPicture);
+                        .resize(ivPicture.getMeasuredWidth(), ivPicture.getMeasuredHeight())
+                        .into(ivPicture, object : com.squareup.picasso.Callback {
+                            override fun onSuccess() {
+                                // Image successfully loaded and displayed
+                                animPolaroid.cancelAnimation()
+                                animPolaroid.visibility = View.INVISIBLE
+                                // Additional success handling code here
+                            }
 
+                            override fun onError(e: Exception?) {
+                                // Image loading failed
+                                animPolaroid.cancelAnimation()
+                                animPolaroid.visibility = View.INVISIBLE
+                                // Error handling code here
+                            }
+                        })
+
+                    animPolaroid.visibility = View.VISIBLE
+                    animPolaroid.playAnimation()
                     endLoading(animShutter, btnShutter)
                     resetVariables()
                     // re-enables location button after generate() is called:
@@ -606,8 +624,7 @@ class MainActivity : AppCompatActivity() {
                     btnLocation.isEnabled = true
                     firstTime = false
                 }
-            }
-            catch (e: Exception){
+            } catch (e: Exception) {
                 tvPrompt.text = "Image generation failed: $e. Please try again."
                 Log.i(TAG, "Image generation failed at generate(). Error is $e")
                 withContext(Dispatchers.Main) {
@@ -620,7 +637,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        if (firstTime){
+        if (firstTime) {
             btnSaveGuide()
         }
     }
@@ -726,8 +743,8 @@ class MainActivity : AppCompatActivity() {
         cardCartoon.setOnClickListener { selectStyle(cardCartoon) }
         cardClay.setOnClickListener { selectStyle(cardClay) }
         cardArtbook.setOnClickListener { selectStyle(cardArtbook) }
-        cardGen1.setOnClickListener{ selectStyle(cardGen1) }
-        cardCopic.setOnClickListener{ selectStyle(cardCopic) }
+        cardGen1.setOnClickListener { selectStyle(cardGen1) }
+        cardCopic.setOnClickListener { selectStyle(cardCopic) }
 
         bottomSheetDialog!!.setOnDismissListener {
             if (firstTime) {
@@ -765,8 +782,8 @@ class MainActivity : AppCompatActivity() {
             setSecondaryText("Your image will vary depending on whether you are indoors or outdoors.")
             setAutoDismiss(false)
             setFocalRadius(R.dimen.focal_radius_save)
-            setPromptStateChangeListener{ prompt, state ->
-                if (state == MaterialTapTargetPrompt.STATE_FOCAL_PRESSED){
+            setPromptStateChangeListener { prompt, state ->
+                if (state == MaterialTapTargetPrompt.STATE_FOCAL_PRESSED) {
                     btnFiltersGuide()
                 }
             }
@@ -801,8 +818,8 @@ class MainActivity : AppCompatActivity() {
             setSecondaryText("This saves the polaroid on screen into your phone's photo gallery.")
             setFocalRadius(R.dimen.focal_radius_save)
             setAutoDismiss(false)
-            setPromptStateChangeListener{ prompt, state ->
-                if (state == MaterialTapTargetPrompt.STATE_FOCAL_PRESSED){
+            setPromptStateChangeListener { prompt, state ->
+                if (state == MaterialTapTargetPrompt.STATE_FOCAL_PRESSED) {
                     endGuide()
                 }
             }
@@ -826,7 +843,7 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun endGuide(){
+    private fun endGuide() {
         val dialog = Dialog(this)
         dialog.setContentView(R.layout.popup_end)
         guideEnd = dialog.findViewById(R.id.guideEnd)
@@ -842,13 +859,15 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun updateTvPrompt(){
+    private fun updateTvPrompt() {
         val text1 = "$name, a $typeOfPlace at $time, $weather."
         tvPrompt.text = text1.replace("_", " ")
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
-        return ZoomHelper.getInstance().dispatchTouchEvent(ev!!,this) || super.dispatchTouchEvent(ev)
+        return ZoomHelper.getInstance().dispatchTouchEvent(ev!!, this) || super.dispatchTouchEvent(
+            ev
+        )
     }
 
     private fun createBitmapFromView(view: View): Bitmap {
@@ -884,8 +903,10 @@ class MainActivity : AppCompatActivity() {
             // On API Level 29 and above, use the RELATIVE_PATH
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
-                Toast.makeText(this@MainActivity, "Photo saved.",
-                    Toast.LENGTH_SHORT).show();
+                Toast.makeText(
+                    this@MainActivity, "Photo saved.",
+                    Toast.LENGTH_SHORT
+                ).show();
             }
         }
 
@@ -900,7 +921,6 @@ class MainActivity : AppCompatActivity() {
             }
         } ?: throw IOException("Failed to create new MediaStore record.")
     }
-
 
 
 }

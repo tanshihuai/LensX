@@ -9,25 +9,42 @@
     tools:context=".MainActivity">
 
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/polaroidbg1"
+        android:layout_width="match_parent"
+        android:layout_height="450dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:cardBackgroundColor="#FFF9F2"
+        android:rotation="10"
+        app:cardCornerRadius="5dp"
+        app:cardElevation="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/tvShutter"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/polaroid"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:rotation="-1"
+        android:rotation="-1.5"
         app:cardCornerRadius="5dp"
-        app:cardElevation="5dp"
+        app:cardElevation="10dp"
         app:layout_constraintBottom_toTopOf="@+id/tvShutter"
-
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <LinearLayout
+
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/white"
+            android:background="#FFF9F2"
             android:gravity="center"
             android:orientation="vertical"
             android:paddingLeft="20dp"
@@ -40,7 +57,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
-                android:src="@drawable/maple" />
+                android:src="@drawable/maple"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/tvPrompt"
@@ -50,11 +70,28 @@
                 android:fontFamily="@font/typeka_regular"
                 android:gravity="center"
                 android:text="Loading your location, please wait..."
-                android:textColor="@color/black"
-                android:textSize="15sp"
+                android:textColor="#313131"
+                android:textSize="13sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ivPicture"
                 tools:text="The streets of Bali at 3pm, cloudy." />
 
-        </LinearLayout>
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/animPolaroid"
+                android:layout_width="172dp"
+                android:layout_height="172dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toTopOf="@id/tvPrompt"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:lottie_autoPlay="false"
+                app:lottie_loop="true"
+                app:lottie_rawRes="@raw/loading_animation" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
 
     </com.google.android.material.card.MaterialCardView>
