@@ -1,6 +1,6 @@
 # LensX
 
-Capture the essence. LensX is a camera with no lens. Instead, it uses AI to generate a "photo" of a specific place and moment using location data, time, weather, and environment.
+Capture the essence. LensX is a camera with no lens. Instead, it uses AI to generate a "photo" of a specific place and moment using the phone's current location, time, weather, and surrounding environment.
 <p align="center">
 <img src="https://github.com/tanshihuai/Terraforming/blob/master/app/src/main/res/raw/general1.gif" width="40%" height="40%">
 </p>
@@ -14,7 +14,9 @@ LensX takes in your device
 
 ## Generated images
 
-<img src="https://github.com/tanshihuai/Terraforming/blob/master/app/src/main/res/raw/presskit.png">
+<br>
+<br>
+
 
 ## Contributing
 
