@@ -14,6 +14,8 @@ LensX takes in your device
 
 ## Generated images
 
+<img src="https://github.com/tanshihuai/Terraforming/blob/master/app/src/main/res/raw/presskit.png">
+
 ## Contributing
 
 Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
