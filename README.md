@@ -49,9 +49,11 @@ LensX has a selection of advanced filters, allowing users to reimagine their who
 </p>
 
 
-## Contributing
+## Application APIS
+Image generation: DALL.E 3 //link
+Weather: [OpenweatherMap](https://openweathermap.org/)
+Location: Google Maps
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Versioning
 
