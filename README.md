@@ -1,4 +1,4 @@
-# LensX - Capture the essence
+# LensX
 LensX is a camera with no lens. Instead, it uses AI to generate a "photo" of a specific place and moment using the phone's current location, time, weather, and surrounding environment.
 <br>
 <br>
@@ -38,7 +38,7 @@ LensX takes the user's live location data to search for surrounding landmarks. U
     <img src="https://github.com/tanshihuai/Terraforming/blob/master/app/src/main/res/raw/locations.gif" width="40%" height="40%">
 </p>
 
-## Reimagined worlds
+## Filters- reimagined
 LensX has a selection of advanced filters, allowing users to reimagine their whole photo, such as into a world crafted by yarn and wool, or as a little buildings and figurines in a diorama.
 <br>
 <br>
@@ -48,29 +48,29 @@ LensX has a selection of advanced filters, allowing users to reimagine their who
     <img src="https://github.com/tanshihuai/Terraforming/blob/master/app/src/main/res/raw/filters.gif" width="40%" height="40%">
 </p>
 
+## Overview
 
-## Application APIS
-Image generation: DALL.E 3 //link
-Weather: [OpenweatherMap](https://openweathermap.org/)
-Location: Google Maps
+LensX was created in an attempt to bridge reality and imagination, allowing users to capture the "vibe" of a specific time and place, rather than a photo. Every click of the shutter reveals something new.
+Join us in reimagining photography, where the focus isn't on capturing what we see, but on experiencing a slice of the imaginary.
 
 
-## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
+## Tech Stack
+***Front-end & Back-end***
+<br>
+[Android Studio (Kotlin)](https://developer.android.com/studio)
+<br>
+
+***APIS***
+<br>
+Image generation: [DALL.E 3](https://platform.openai.com/docs/guides/images/introduction?context=node) <br>
+Weather data: [OpenweatherMap](https://openweathermap.org/) <br>
+Location data: [Google Places](https://developers.google.com/maps/documentation/places/web-service/overview) <br> 
+Image display: [Picasso](https://square.github.io/picasso/)
+
 
 ## Authors
-
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+**Jack Tan** - [GitHub](https://github.com/tanshihuai)
 
 ## Acknowledgments
-
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
+Special thanks to [Bjøern Karmann](https://bjoernkarmann.dk/), whose Paragraphica inspired LensX.
