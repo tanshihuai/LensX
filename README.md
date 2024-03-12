@@ -38,7 +38,7 @@ LensX takes the user's live location data to search for surrounding landmarks. U
     <img src="https://github.com/tanshihuai/Terraforming/blob/master/app/src/main/res/raw/locations_1.gif" width="40%" height="40%">
 </p>
 
-## Filters- reimagined
+## Choosing a filter
 LensX has a selection of advanced filters, allowing users to reimagine their whole photo, such as into a world crafted by yarn and wool, or as a little buildings and figurines in a diorama.
 <br>
 <br>
