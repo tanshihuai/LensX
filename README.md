@@ -50,8 +50,7 @@ LensX has a selection of advanced filters, allowing users to reimagine their who
 
 ## Overview
 
-LensX was created in an attempt to bridge reality and imagination, allowing users to capture the "vibe" of a specific time and place, rather than a photo. Every click of the shutter reveals something new.
-Join us in reimagining photography, where the focus isn't on capturing what we see, but on experiencing a slice of the imaginary.
+LensX was created in an attempt to bridge reality and imagination, allowing users to capture the "vibe" of a specific time and place rather than a photo. Join us in reimagining photography, where the focus isn't on capturing what we see, but on experiencing a slice of the imaginary.
 
 
 
