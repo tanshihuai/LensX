@@ -4,7 +4,7 @@ LensX is a camera with no lens. Instead, it uses AI to generate a "photo" of a s
 <br>
 <br>
 <p align="center">
-    <img src="https://github.com/tanshihuai/Terraforming/blob/master/app/src/main/res/raw/general_1.gif" width="40%" height="40%">
+    <img src="https://github.com/tanshihuai/Terraforming/blob/master/app/src/main/res/raw/general_1.gif">
 </p>
 
 ## How it works
@@ -35,7 +35,7 @@ LensX takes the user's live location data to search for surrounding landmarks. U
 <br>
 
 <p align="center">
-    <img src="https://github.com/tanshihuai/Terraforming/blob/master/app/src/main/res/raw/locations_1.gif" width="40%" height="40%">
+    <img src="https://github.com/tanshihuai/Terraforming/blob/master/app/src/main/res/raw/locations_1.gif">
 </p>
 
 ## Choosing a filter
@@ -45,7 +45,7 @@ LensX has a selection of advanced filters, allowing users to reimagine their who
 <br>
 
 <p align="center">
-    <img src="https://github.com/tanshihuai/Terraforming/blob/master/app/src/main/res/raw/filters_1.gif" width="40%" height="40%">
+    <img src="https://github.com/tanshihuai/Terraforming/blob/master/app/src/main/res/raw/filters_1.gif" >
 </p>
 
 ## Overview
