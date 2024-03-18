@@ -4,7 +4,7 @@ LensX is a camera with no lens. Instead, it uses AI to generate a "photo" of a s
 <br>
 <br>
 <p align="center">
-    <img src="https://github.com/tanshihuai/Terraforming/blob/master/app/src/main/res/raw/general_1.gif">
+    <img src="https://github.com/tanshihuai/Terraforming/blob/master/app/src/main/res/raw/hero.png">
 </p>
 
 ## How it works
@@ -51,8 +51,12 @@ LensX has a selection of advanced filters, allowing users to reimagine their who
 ## Overview
 
 LensX was created in an attempt to bridge reality and imagination, allowing users to capture the "vibe" of a specific time and place rather than a photo. Join us in reimagining photography, where the focus isn't on capturing what we see, but on experiencing a slice of the imaginary.
-
-
+<br>
+<br>
+<br>
+<p align="center">
+    <img src="https://github.com/tanshihuai/Terraforming/blob/master/app/src/main/res/raw/general_1.gif">
+</p>
 
 ## Tech Stack
 ***Front-end & Back-end***
