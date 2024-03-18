@@ -4,7 +4,7 @@ LensX is a camera with no lens. Instead, it uses AI to generate a "photo" of a s
 <br>
 <br>
 <p align="center">
-    <img src="https://github.com/tanshihuai/Terraforming/blob/master/app/src/main/res/raw/general1.gif" width="40%" height="40%">
+    <img src="https://github.com/tanshihuai/Terraforming/blob/master/app/src/main/res/raw/general_1.gif">
 </p>
 
 ## How it works
@@ -35,23 +35,22 @@ LensX takes the user's live location data to search for surrounding landmarks. U
 <br>
 
 <p align="center">
-    <img src="https://github.com/tanshihuai/Terraforming/blob/master/app/src/main/res/raw/locations.gif" width="40%" height="40%">
+    <img src="https://github.com/tanshihuai/Terraforming/blob/master/app/src/main/res/raw/locations_1.gif">
 </p>
 
-## Filters- reimagined
+## Choosing a filter
 LensX has a selection of advanced filters, allowing users to reimagine their whole photo, such as into a world crafted by yarn and wool, or as a little buildings and figurines in a diorama.
 <br>
 <br>
 <br>
 
 <p align="center">
-    <img src="https://github.com/tanshihuai/Terraforming/blob/master/app/src/main/res/raw/filters.gif" width="40%" height="40%">
+    <img src="https://github.com/tanshihuai/Terraforming/blob/master/app/src/main/res/raw/filters_1.gif" >
 </p>
 
 ## Overview
 
-LensX was created in an attempt to bridge reality and imagination, allowing users to capture the "vibe" of a specific time and place, rather than a photo. Every click of the shutter reveals something new.
-Join us in reimagining photography, where the focus isn't on capturing what we see, but on experiencing a slice of the imaginary.
+LensX was created in an attempt to bridge reality and imagination, allowing users to capture the "vibe" of a specific time and place rather than a photo. Join us in reimagining photography, where the focus isn't on capturing what we see, but on experiencing a slice of the imaginary.
 
 
 
