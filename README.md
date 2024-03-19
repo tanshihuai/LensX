@@ -4,7 +4,7 @@ LensX is a camera with no lens. Instead, it uses AI to generate a "photo" of a s
 <br>
 <br>
 <p align="center">
-    <img src="https://github.com/tanshihuai/Terraforming/blob/master/app/src/main/res/raw/hero.png">
+    <img src="https://github.com/tanshihuai/Terraforming/blob/master/app/src/main/res/raw/hero1.png">
 </p>
 
 ## How it works
