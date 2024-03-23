@@ -113,6 +113,7 @@ class MainActivity : AppCompatActivity() {
     private var indoorOutdoor = "Indoor"
     private var getLocationFlag = false
     private var getWeatherFlag = false
+    private var isGeneratingFlag = false
     private var selectedStyle: MaterialCardView? = null
     private val placeArray = arrayListOf<Place>()
     private var placeNames = arrayListOf<String>()
@@ -149,18 +150,24 @@ class MainActivity : AppCompatActivity() {
         firstTime = sharedPreferences.getBoolean("isFirstLaunch", true)
         if (firstTime) {
             // After showing the guide, set isFirstLaunch to false
+            Log.i(TAG,"first time")
+            getLocationPermission()
             val editor = sharedPreferences.edit()
             editor.putBoolean("isFirstLaunch", false)
             editor.apply()
         }
 
+        else{
+            startUp()
+        }
+    }
 
+    private fun startUp(){
         initFiltersDialog()
         startLoading(animLocation, btnLocation)
         startLoading(animShutter, btnShutter)
         InitPlace()
         getLongLat(::InitWeather)
-
 
         btnShutter.setOnClickListener {
             btnLocation.isEnabled = false
@@ -229,9 +236,7 @@ class MainActivity : AppCompatActivity() {
                 }
         } else {
             Log.i(TAG, "Error at getLongLat(), no location permission.")
-            tvPrompt.text =
-                tvPrompt.text.toString() + "Error at getLongLat(), please enable location permission and restart the app."
-            getLocationPermission()
+            tvPrompt.text = tvPrompt.text.toString() + "Error at getLongLat(), please enable location permission and restart the app."
             // re-enables btn location
             btnLocation.isEnabled = true
         }
@@ -457,6 +462,7 @@ class MainActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Log.i(TAG, "exception caught, ${e.localizedMessage}")
                 getWeatherFlag = true
+                Log.i(TAG, "I am stuck here")
                 if (getLocationFlag && getWeatherFlag) {
                     Log.i(TAG, "Calling generate() from getWeather() with no weather...")
                     generate()
@@ -499,6 +505,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun generate() {
         Log.i(TAG, "generate() called.")
+        if (isGeneratingFlag){
+            Log.i(TAG, "Already generating, returning")
+            return
+        }
         var question = "A photo taken at $name, a $typeOfPlace, weather being $weather, at $time."
 
         if (indoorOutdoor == "Outdoor") {
@@ -663,6 +673,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION) {
+            // If request is cancelled, the result arrays are empty.
+            if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                // Permission was granted, proceed with getting location
+                Log.i(TAG, "first time, location permission granted, running start up functions")
+                startUp()
+            }
+            else {
+                // Permission denied, you can notify the user and disable location functionality
+            }
+        }
+    }
+
+
     private fun getTime() {
         Log.i(TAG, "Getting time...")
         val currentTime = Date()
@@ -675,6 +701,7 @@ class MainActivity : AppCompatActivity() {
         weather = "clear skies"
         getLocationFlag = false
         getWeatherFlag = false
+        isGeneratingFlag = false
     }
 
     private fun selectStyle(selectedCard: MaterialCardView) {
@@ -921,6 +948,4 @@ class MainActivity : AppCompatActivity() {
             }
         } ?: throw IOException("Failed to create new MediaStore record.")
     }
-
-
 }
